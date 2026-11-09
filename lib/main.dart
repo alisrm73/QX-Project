@@ -4,6 +4,10 @@ import 'services/project_store.dart';
 import 'screens/my_projects_page.dart';
 import 'screens/workspace_page.dart';
 import 'screens/tools_page.dart';
+import 'screens/qx_core_page.dart';
+import 'screens/library_page.dart';
+import 'screens/settings_page.dart';
+import 'screens/search_page.dart';
 
 void main() => runApp(const QxStudioApp());
 
@@ -90,7 +94,13 @@ class QxHomePage extends StatelessWidget {
                                           builder: (_) => const MyProjectsPage(),
                                         ),
                                       )
-                                  : index == 3
+                                  : index == 2
+                                      ? () => Navigator.of(context).push(
+                                            MaterialPageRoute<void>(
+                                              builder: (_) => const QxCorePage(),
+                                            ),
+                                          )
+                                      : index == 3
                                       ? () => Navigator.of(context).push(
                                             MaterialPageRoute<void>(
                                               builder: (_) => const WorkspacePage(),
@@ -117,7 +127,13 @@ class QxHomePage extends StatelessWidget {
                 ],
               ),
             ),
-            const _SideRail(),
+            _SideRail(
+              onHome: () => Navigator.of(context).popUntil((route) => route.isFirst),
+              onProjects: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const MyProjectsPage())),
+              onCore: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const QxCorePage())),
+              onLibrary: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LibraryPage())),
+              onSettings: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SettingsPage())),
+            ),
           ],
         ),
       ),
@@ -258,8 +274,9 @@ class _NewProjectInput {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.compact});
+  const _TopBar({required this.compact, required this.onSearch});
   final bool compact;
+  final VoidCallback onSearch;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -284,7 +301,7 @@ class _TopBar extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            _RoundAction(icon: Icons.search_rounded),
+            _RoundAction(icon: Icons.search_rounded, onTap: onSearch),
             const SizedBox(width: 8),
             _RoundAction(icon: Icons.notifications_none_rounded),
           ],
@@ -380,7 +397,19 @@ class _FeatureCard extends StatelessWidget {
 }
 
 class _SideRail extends StatelessWidget {
-  const _SideRail();
+  const _SideRail({
+    required this.onHome,
+    required this.onProjects,
+    required this.onCore,
+    required this.onLibrary,
+    required this.onSettings,
+  });
+
+  final VoidCallback onHome;
+  final VoidCallback onProjects;
+  final VoidCallback onCore;
+  final VoidCallback onLibrary;
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -392,51 +421,77 @@ class _SideRail extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: Colors.white.withValues(alpha: .06)),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            _RailButton(icon: Icons.home_rounded, selected: true),
-            SizedBox(height: 13),
-            _RailButton(icon: Icons.folder_copy_outlined),
-            SizedBox(height: 13),
-            _RailButton(icon: Icons.hub_outlined),
-            SizedBox(height: 13),
-            _RailButton(icon: Icons.grid_view_rounded),
-            Spacer(),
-            _RailButton(icon: Icons.settings_outlined),
-            SizedBox(height: 10),
-            CircleAvatar(radius: 15, backgroundColor: Color(0xFF393451), child: Icon(Icons.person_outline_rounded, size: 17, color: Color(0xFFD1CBFF))),
+            _RailButton(icon: Icons.home_rounded, selected: true, onTap: onHome),
+            const SizedBox(height: 13),
+            _RailButton(icon: Icons.folder_copy_outlined, onTap: onProjects),
+            const SizedBox(height: 13),
+            _RailButton(icon: Icons.hub_outlined, onTap: onCore),
+            const SizedBox(height: 13),
+            _RailButton(icon: Icons.grid_view_rounded, onTap: onLibrary),
+            const Spacer(),
+            _RailButton(icon: Icons.settings_outlined, onTap: onSettings),
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: onSettings,
+              borderRadius: BorderRadius.circular(20),
+              child: const CircleAvatar(
+                radius: 15,
+                backgroundColor: Color(0xFF393451),
+                child: Icon(Icons.person_outline_rounded, size: 17, color: Color(0xFFD1CBFF)),
+              ),
+            ),
           ],
         ),
       );
 }
 
 class _RailButton extends StatelessWidget {
-  const _RailButton({required this.icon, this.selected = false});
+  const _RailButton({required this.icon, this.selected = false, required this.onTap});
   final IconData icon;
   final bool selected;
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF7566F2).withValues(alpha: .2) : Colors.transparent,
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(13),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(13),
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: selected ? const Color(0xFF7566F2).withValues(alpha: .2) : Colors.transparent,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(icon, color: selected ? const Color(0xFFAA9FFF) : const Color(0xFF85899B), size: 21),
+          ),
         ),
-        child: Icon(icon, color: selected ? const Color(0xFFAA9FFF) : const Color(0xFF85899B), size: 21),
       );
 }
 
 class _RoundAction extends StatelessWidget {
-  const _RoundAction({required this.icon});
+  const _RoundAction({required this.icon, required this.onTap});
   final IconData icon;
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(color: const Color(0xFF171A25), borderRadius: BorderRadius.circular(13), border: Border.all(color: Colors.white.withValues(alpha: .06))),
-        child: Icon(icon, color: const Color(0xFFB8BACC), size: 19),
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(13),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(13),
+          child: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(color: const Color(0xFF171A25), borderRadius: BorderRadius.circular(13), border: Border.all(color: Colors.white.withValues(alpha: .06))),
+            child: Icon(icon, color: const Color(0xFFB8BACC), size: 19),
+          ),
+        ),
       );
 }
 
