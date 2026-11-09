@@ -42,7 +42,7 @@ void main() {
       secretStore: store,
       httpClient: MockClient((request) async {
         expect(request.url.path, '/v1/chat');
-        expect(request.headers['authorization'], 'Bearer ${'t' * 32}');
+        expect(request.headers['authorization'], 'Bearer tttttttttttttttttttttttttttttttt');
         final body = jsonDecode(request.body) as Map<String, dynamic>;
         expect(body['messages'], hasLength(1));
         return http.Response(jsonEncode({'ok': true, 'answer': 'Hello from QX'}), 200);
