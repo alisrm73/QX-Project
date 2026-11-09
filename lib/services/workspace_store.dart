@@ -52,7 +52,6 @@ class WorkspaceStore {
             directoryProvider ?? getApplicationDocumentsDirectory;
 
   static const maxTextFileBytes = 1024 * 1024;
-
   final Future<Directory> Function() _directoryProvider;
 
   Future<Directory> ensureWorkspace(QxProject project) async {
@@ -61,9 +60,7 @@ class WorkspaceStore {
     }
     final base = await _directoryProvider();
     final workspace = Directory('${base.path}/qx_workspaces/${project.id}');
-    if (!await workspace.exists()) {
-      await workspace.create(recursive: true);
-    }
+    if (!await workspace.exists()) await workspace.create(recursive: true);
     return workspace;
   }
 
@@ -73,18 +70,15 @@ class WorkspaceStore {
     await for (final entity in workspace.list(recursive: true, followLinks: false)) {
       final type = await FileSystemEntity.type(entity.path, followLinks: false);
       if (type != FileSystemEntityType.file &&
-          type != FileSystemEntityType.directory) {
-        continue;
-      }
+          type != FileSystemEntityType.directory) continue;
       final relativePath = entity.path.substring(workspace.path.length + 1);
       final name = relativePath.split(Platform.pathSeparator).last;
       final isDirectory = type == FileSystemEntityType.directory;
-      final size = isDirectory ? 0 : await File(entity.path).length();
       entries.add(WorkspaceEntry(
         name: name,
         relativePath: relativePath.replaceAll(Platform.pathSeparator, '/'),
         isDirectory: isDirectory,
-        size: size,
+        size: isDirectory ? 0 : await File(entity.path).length(),
       ));
     }
     entries.sort((a, b) {
@@ -97,20 +91,18 @@ class WorkspaceStore {
   Future<WorkspaceAnalysis> analyzeWorkspace(QxProject project) async {
     final entries = await listEntries(project);
     final files = entries.where((entry) => !entry.isDirectory).toList();
-    final directories = entries.where((entry) => entry.isDirectory).length;
     final extensions = <String, int>{};
     var totalBytes = 0;
     for (final file in files) {
       totalBytes += file.size;
-      final leaf = file.name;
-      final dot = leaf.lastIndexOf('.');
-      final extension = dot <= 0 ? '(no extension)' : leaf.substring(dot).toLowerCase();
+      final dot = file.name.lastIndexOf('.');
+      final extension = dot <= 0 ? '(no extension)' : file.name.substring(dot).toLowerCase();
       extensions.update(extension, (count) => count + 1, ifAbsent: () => 1);
     }
     final rootFiles = files.map((file) => file.relativePath).toSet();
     return WorkspaceAnalysis(
       fileCount: files.length,
-      directoryCount: directories,
+      directoryCount: entries.where((entry) => entry.isDirectory).length,
       totalBytes: totalBytes,
       extensionCounts: Map.unmodifiable(extensions),
       hasIndexHtml: rootFiles.contains('index.html'),
@@ -121,12 +113,10 @@ class WorkspaceStore {
 
   Future<String> readTextFile(QxProject project, String fileName) async {
     final file = await _fileFor(project, fileName);
-    final type = await FileSystemEntity.type(file.path, followLinks: false);
-    if (type != FileSystemEntityType.file) {
+    if (await FileSystemEntity.type(file.path, followLinks: false) != FileSystemEntityType.file) {
       throw FileSystemException('The selected item is not a regular file.', file.path);
     }
-    final length = await file.length();
-    if (length > maxTextFileBytes) {
+    if (await file.length() > maxTextFileBytes) {
       throw FileSystemException('Text file exceeds the 1 MB editor limit.', file.path);
     }
     return file.readAsString();
@@ -147,17 +137,14 @@ class WorkspaceStore {
   }
 
   Future<void> createDirectory(QxProject project, {required String directoryPath}) async {
-    _validateRelativePath(directoryPath);
-    final directory = await _entityFor(project, directoryPath);
-    if (await FileSystemEntity.type(directory.path, followLinks: false) !=
-        FileSystemEntityType.notFound) {
-      throw FileSystemException('The selected path already exists.', directory.path);
+    final path = await _pathFor(project, directoryPath);
+    if (await FileSystemEntity.type(path, followLinks: false) != FileSystemEntityType.notFound) {
+      throw FileSystemException('The selected path already exists.', path);
     }
-    await directory.create(recursive: true);
+    await Directory(path).create(recursive: true);
   }
 
-  Future<void> createTextFile(
-    QxProject project, {
+  Future<void> createTextFile(QxProject project, {
     required String fileName,
     String content = '',
   }) async {
@@ -169,56 +156,51 @@ class WorkspaceStore {
     await file.writeAsString(content, flush: true);
   }
 
-  Future<void> writeTextFile(
-    QxProject project, {
+  Future<void> writeTextFile(QxProject project, {
     required String fileName,
     required String content,
   }) async {
     _validateRelativePath(fileName);
     _validateContent(content);
     final file = await _fileFor(project, fileName);
-    final type = await FileSystemEntity.type(file.path, followLinks: false);
-    if (type != FileSystemEntityType.file) {
+    if (await FileSystemEntity.type(file.path, followLinks: false) != FileSystemEntityType.file) {
       throw FileSystemException('The selected item is not a regular file.', file.path);
     }
     await file.writeAsString(content, flush: true);
   }
 
-  Future<File> _fileFor(QxProject project, String fileName) async =>
-      File((await _entityFor(project, fileName)).path);
+  Future<File> _fileFor(QxProject project, String relativePath) async =>
+      File(await _pathFor(project, relativePath));
 
-  Future<FileSystemEntity> _entityFor(QxProject project, String relativePath) async {
+  Future<String> _pathFor(QxProject project, String relativePath) async {
     _validateRelativePath(relativePath);
     final workspace = await ensureWorkspace(project);
     final segments = relativePath.split('/');
-    var current = workspace;
-    for (var i = 0; i < segments.length - 1; i++) {
-      current = Directory('${current.path}/${segments[i]}');
-      final type = await FileSystemEntity.type(current.path, followLinks: false);
+    var parent = workspace.path;
+    for (final segment in segments.take(segments.length - 1)) {
+      parent = '$parent/$segment';
+      final type = await FileSystemEntity.type(parent, followLinks: false);
       if (type == FileSystemEntityType.link) {
-        throw FileSystemException('Symbolic links are not allowed in workspace paths.', current.path);
+        throw FileSystemException('Symbolic links are not allowed in workspace paths.', parent);
       }
-      if (type != FileSystemEntityType.directory &&
-          type != FileSystemEntityType.notFound) {
-        throw FileSystemException('A path segment is not a directory.', current.path);
+      if (type != FileSystemEntityType.directory && type != FileSystemEntityType.notFound) {
+        throw FileSystemException('A path segment is not a directory.', parent);
       }
     }
-    final targetPath = '${current.path}/${segments.last}';
-    final targetType = await FileSystemEntity.type(targetPath, followLinks: false);
-    if (targetType == FileSystemEntityType.link) {
-      throw FileSystemException('Symbolic links are not allowed in workspace paths.', targetPath);
+    final target = '$parent/${segments.last}';
+    if (await FileSystemEntity.type(target, followLinks: false) == FileSystemEntityType.link) {
+      throw FileSystemException('Symbolic links are not allowed in workspace paths.', target);
     }
-    return File(targetPath);
+    return target;
   }
 
   void _validateRelativePath(String path) {
-    if (path.isEmpty || path != path.trim() || path.contains(String.fromCharCode(92)) ||
-        path.contains('\u0000')) {
+    if (path.isEmpty || path != path.trim() ||
+        path.contains(String.fromCharCode(92)) || path.contains('\u0000')) {
       throw ArgumentError.value(path, 'path', 'Invalid relative path.');
     }
     final segments = path.split('/');
-    if (segments.any((part) => part.isEmpty || part == '.' || part == '..' ||
-        part != part.trim())) {
+    if (segments.any((part) => part.isEmpty || part == '.' || part == '..' || part != part.trim())) {
       throw ArgumentError.value(path, 'path', 'Invalid relative path.');
     }
   }
