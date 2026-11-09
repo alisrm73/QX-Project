@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qx_studio/models/qx_project.dart';
 import 'package:qx_studio/screens/my_projects_page.dart';
 import 'package:qx_studio/services/project_store.dart';
 
