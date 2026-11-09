@@ -213,7 +213,7 @@ Future<void> _showCreateProjectDialog(BuildContext context) async {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تم حفظ المشروع «${project.name}» على الهاتف')),
       );
-    } catch (error) {
+    } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تعذّر حفظ المشروع. تحقق من مساحة التخزين ثم حاول مجدداً.')),
