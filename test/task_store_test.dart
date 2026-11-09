@@ -66,9 +66,7 @@ void main() {
   });
 
   test('does not silently replace malformed task data', () async {
-    final workspace = await storeFor(directory).then(
-      (value) => value.ensureWorkspace(project),
-    );
+    final workspace = await storeFor(directory).ensureWorkspace(project);
     await File('${workspace.path}/tasks.json').writeAsString('{broken');
 
     await expectLater(store.getTasks(project), throwsFormatException);
