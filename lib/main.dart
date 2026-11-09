@@ -62,7 +62,14 @@ class QxHomePage extends StatelessWidget {
             Expanded(
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(child: _TopBar(compact: compact)),
+                  SliverToBoxAdapter(
+                    child: _TopBar(
+                      compact: compact,
+                      onSearch: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => const SearchPage()),
+                      ),
+                    ),
+                  ),
                   SliverToBoxAdapter(
                     child: _WelcomePanel(
                       onCreateProject: () => _showCreateProjectDialog(context),
