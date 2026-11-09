@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
+import '../services/workspace_store.dart';
 import 'workspace_page.dart';
 
 class LibraryPage extends StatefulWidget {
@@ -69,7 +70,7 @@ class _LibraryPageState extends State<LibraryPage> {
                         trailing: const Icon(Icons.chevron_left_rounded),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (_) => WorkspacePage(project: project),
+                            builder: (_) => ProjectWorkspacePage(project: project, store: WorkspaceStore()),
                           ),
                         ),
                       ),
