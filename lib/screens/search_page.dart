@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
+import '../services/workspace_store.dart';
 import 'workspace_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -78,7 +79,7 @@ class _SearchPageState extends State<SearchPage> {
                         subtitle: Text(project.type),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (_) => WorkspacePage(project: project),
+                            builder: (_) => ProjectWorkspacePage(project: project, store: WorkspaceStore()),
                           ),
                         ),
                       );
