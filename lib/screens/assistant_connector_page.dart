@@ -39,7 +39,7 @@ class _AssistantConnectorPageState extends State<AssistantConnectorPage> {
     final token = await _api.loadToken();
     if (!mounted) return;
     setState(() {
-      _endpoint.text = endpoint ?? '';
+      _endpoint.text = endpoint ?? 'https://qx-assistant-worker.alisrm73.workers.dev';
       _token.text = token ?? '';
       _loadingSettings = false;
     });
