@@ -20,18 +20,38 @@ class ProjectTasksPage extends StatefulWidget {
 
 class _ProjectTasksPageState extends State<ProjectTasksPage> {
   late final TaskStore _store = widget.store ?? TaskStore();
-  late Future<List<WorkspaceTask>> _tasksFuture;
+  List<WorkspaceTask> _tasks = [];
+  bool _isLoading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _tasksFuture = _store.getTasks(widget.project);
+    _reload();
   }
 
   Future<void> _reload() async {
-    final tasks = await _store.getTasks(widget.project);
-    if (!mounted) return;
-    setState(() => _tasksFuture = Future<List<WorkspaceTask>>.value(tasks));
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
+    try {
+      final tasks = await _store.getTasks(widget.project);
+      if (!mounted) return;
+      setState(() {
+        _tasks = tasks;
+        _isLoading = false;
+        _hasError = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
+    }
   }
 
   Future<void> _addTask() async {
@@ -84,107 +104,107 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text('المهام / Tasks · ${widget.project.name}'),
-          backgroundColor: const Color(0xFF0B0D13),
-          actions: [
-            IconButton(
-              tooltip: 'إضافة مهمة / Add task',
-              onPressed: _addTask,
-              icon: const Icon(Icons.add_task_rounded),
-            ),
-          ],
-        ),
+  Widget build(BuildContext context) {
+    final completed = _tasks.where((task) => task.isCompleted).length;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('المهام / Tasks · ${widget.project.name}'),
         backgroundColor: const Color(0xFF0B0D13),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _addTask,
-          icon: const Icon(Icons.add_rounded),
-          label: const Text('مهمة جديدة / New task'),
-        ),
-        body: FutureBuilder<List<WorkspaceTask>>(
-          future: _tasksFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return _TaskMessage(
-                message: 'تعذّر تحميل المهام / Could not load tasks',
-                action: _reload,
-              );
-            }
-            final tasks = snapshot.data ?? const <WorkspaceTask>[];
-            final completed = tasks.where((task) => task.isCompleted).length;
-            if (tasks.isEmpty) {
-              return const _TaskMessage(
-                message: 'لا توجد مهام بعد / No tasks yet',
-                detail: 'أضف أول مهمة لتنظيم العمل على هذا المشروع / Add your first task to organize this project',
-              );
-            }
-            return RefreshIndicator(
-              onRefresh: _reload,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-                children: [
-                  Card(
-                    color: const Color(0xFF151923),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+        actions: [
+          IconButton(
+            tooltip: 'إضافة مهمة / Add task',
+            onPressed: _addTask,
+            icon: const Icon(Icons.add_task_rounded),
+          ),
+        ],
+      ),
+      backgroundColor: const Color(0xFF0B0D13),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addTask,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('مهمة جديدة / New task'),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _hasError
+              ? _TaskMessage(
+                  message: 'تعذّر تحميل المهام / Could not load tasks',
+                  action: _reload,
+                )
+              : _tasks.isEmpty
+                  ? const _TaskMessage(
+                      message: 'لا توجد مهام بعد / No tasks yet',
+                      detail: 'أضف أول مهمة لتنظيم العمل على هذا المشروع / Add your first task to organize this project',
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _reload,
+                      child: ListView(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
                         children: [
-                          Text(
-                            'التقدم / Progress · $completed / ${tasks.length}',
-                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          Card(
+                            color: const Color(0xFF151923),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'التقدم / Progress · $completed / ${_tasks.length}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  LinearProgressIndicator(
+                                    value: completed / _tasks.length,
+                                    minHeight: 7,
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: const Color(0xFF55C99A),
+                                    backgroundColor: const Color(0xFF303544),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 10),
-                          LinearProgressIndicator(
-                            value: completed / tasks.length,
-                            minHeight: 7,
-                            borderRadius: BorderRadius.circular(8),
-                            color: const Color(0xFF55C99A),
-                            backgroundColor: const Color(0xFF303544),
-                          ),
+                          for (final task in _tasks)
+                            Card(
+                              color: const Color(0xFF151923),
+                              child: CheckboxListTile(
+                                value: task.isCompleted,
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    _setCompleted(task, value);
+                                  }
+                                },
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                title: Text(
+                                  task.title,
+                                  style: TextStyle(
+                                    decoration: task.isCompleted
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+                                subtitle: task.notes.isEmpty
+                                    ? null
+                                    : Text(task.notes),
+                                secondary: Icon(
+                                  task.isCompleted
+                                      ? Icons.check_circle_rounded
+                                      : Icons.radio_button_unchecked_rounded,
+                                  color: task.isCompleted
+                                      ? const Color(0xFF55C99A)
+                                      : const Color(0xFF969BAD),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  for (final task in tasks)
-                    Card(
-                      color: const Color(0xFF151923),
-                      child: CheckboxListTile(
-                        value: task.isCompleted,
-                        onChanged: (value) {
-                          if (value != null) _setCompleted(task, value);
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(
-                          task.title,
-                          style: TextStyle(
-                            decoration: task.isCompleted
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ),
-                        subtitle: task.notes.isEmpty ? null : Text(task.notes),
-                        secondary: Icon(
-                          task.isCompleted
-                              ? Icons.check_circle_rounded
-                              : Icons.radio_button_unchecked_rounded,
-                          color: task.isCompleted
-                              ? const Color(0xFF55C99A)
-                              : const Color(0xFF969BAD),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
+    );
+  }
 }
 
 class _AddTaskDialog extends StatefulWidget {
