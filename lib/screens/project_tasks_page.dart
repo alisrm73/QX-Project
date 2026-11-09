@@ -29,8 +29,10 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
   }
 
   Future<void> _reload() async {
-    setState(() => _tasksFuture = _store.getTasks(widget.project));
-    await _tasksFuture;
+    final nextTasks = _store.getTasks(widget.project);
+    setState(() => _tasksFuture = nextTasks);
+    await nextTasks;
+    if (mounted) setState(() {});
   }
 
   Future<void> _addTask() async {
