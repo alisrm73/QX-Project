@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'services/project_store.dart';
+import 'screens/my_projects_page.dart';
 
 void main() => runApp(const QxStudioApp());
 
@@ -81,7 +82,13 @@ class QxHomePage extends StatelessWidget {
                           data: _cards[index],
                           onTap: index == 0
                               ? () => _showCreateProjectDialog(context)
-                              : null,
+                              : index == 1
+                                  ? () => Navigator.of(context).push(
+                                        MaterialPageRoute<void>(
+                                          builder: (_) => const MyProjectsPage(),
+                                        ),
+                                      )
+                                  : null,
                         ),
                         childCount: _cards.length,
                       ),
