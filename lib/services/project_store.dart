@@ -41,7 +41,7 @@ class ProjectStore {
       throw ArgumentError.value(name, 'name', 'Project name cannot be empty.');
     }
 
-    final projects = await getProjects();
+    final projects = (await getProjects()).toList();
     final project = QxProject(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       name: cleanName,
