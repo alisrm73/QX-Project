@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qx_studio/models/qx_project.dart';
 import 'package:qx_studio/services/project_store.dart';
 
 void main() {
@@ -36,12 +35,12 @@ void main() {
     expect(projects.single.name, 'My first project');
     expect(projects.single.type, 'تطبيق');
     expect(projects.single.description, 'Local project test');
-    expect(projects.single.createdAt, isA<DateTime>());
+    expect(projects.single.createdAt, created.createdAt);
   });
 
   test('rejects an empty project name', () async {
     expect(
-      () => store.createProject(name: '   ', type: 'مشروع عام'),
+      store.createProject(name: '   ', type: 'مشروع عام'),
       throwsArgumentError,
     );
   });
