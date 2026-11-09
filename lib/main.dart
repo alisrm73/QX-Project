@@ -134,7 +134,7 @@ Future<void> _showCreateProjectDialog(BuildContext context) async {
                 ),
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
-                  value: projectType,
+                  initialValue: projectType,
                   decoration: const InputDecoration(
                     labelText: 'نوع المشروع / Project type',
                     border: OutlineInputBorder(),
