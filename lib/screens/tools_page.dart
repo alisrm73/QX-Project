@@ -4,6 +4,7 @@ import '../models/qx_project.dart';
 import '../services/project_store.dart';
 import '../services/workspace_store.dart';
 import 'project_preview_page.dart';
+import 'assistant_connector_page.dart';
 
 class ToolsPage extends StatefulWidget {
   const ToolsPage({
@@ -57,8 +58,15 @@ class _ToolsPageState extends State<ToolsPage> {
             }
             final projects = snapshot.data ?? const <QxProject>[];
             if (projects.isEmpty) {
-              return const _ToolsMessage(
-                message: 'أنشئ مشروعاً أولاً لاستخدام الأدوات / Create a project first to use the tools',
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _ChatGptConnectorCard(),
+                  const SizedBox(height: 12),
+                  const _ToolsMessage(
+                    message: 'أنشئ مشروعاً أولاً لاستخدام أدوات المشروع / Create a project first to use project tools',
+                  ),
+                ],
               );
             }
             return RefreshIndicator(
@@ -66,6 +74,8 @@ class _ToolsPageState extends State<ToolsPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  _ChatGptConnectorCard(),
+                  const SizedBox(height: 16),
                   const Text(
                     'اختر مشروعاً لفحص ملفاته وأدواته / Choose a project to inspect its files and tools',
                     style: TextStyle(fontWeight: FontWeight.w700),
@@ -327,6 +337,24 @@ class _ToolsMessage extends StatelessWidget {
                 ),
               ],
             ],
+          ),
+        ),
+      );
+}
+
+class _ChatGptConnectorCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Card(
+        color: const Color(0xFF17231F),
+        child: ListTile(
+          leading: const Icon(Icons.auto_awesome, color: Color(0xFF55C99A)),
+          title: const Text('ChatGPT · مساعد QX'),
+          subtitle: const Text('أول أداة ربط · جاهز للاتصال لاحقاً / First assistant connector · prepared'),
+          trailing: const Icon(Icons.chevron_left_rounded),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const AssistantConnectorPage(),
+            ),
           ),
         ),
       );
