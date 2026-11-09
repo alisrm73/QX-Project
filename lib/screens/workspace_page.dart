@@ -5,6 +5,7 @@ import '../services/project_store.dart';
 import '../services/workspace_store.dart';
 import 'file_editor_page.dart';
 import 'project_preview_page.dart';
+import 'project_tasks_page.dart';
 
 class WorkspacePage extends StatefulWidget {
   const WorkspacePage({
@@ -242,6 +243,15 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
           title: Text(widget.project.name),
           backgroundColor: const Color(0xFF0B0D13),
           actions: [
+            IconButton(
+              tooltip: 'المهام / Tasks',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ProjectTasksPage(project: widget.project),
+                ),
+              ),
+              icon: const Icon(Icons.task_alt_rounded),
+            ),
             IconButton(
               tooltip: 'معاينة / Preview',
               onPressed: _openPreview,
