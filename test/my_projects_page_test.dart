@@ -6,7 +6,7 @@ import 'package:qx_studio/services/project_store.dart';
 
 void main() {
   testWidgets('shows the empty state when no projects are saved', (tester) async {
-    final store = _FakeProjectStore(const []);
+    final store = _FakeProjectStore([]);
 
     await tester.pumpWidget(MaterialApp(home: MyProjectsPage(store: store)));
     await tester.pump();
@@ -14,7 +14,8 @@ void main() {
     expect(find.text('لا توجد مشاريع بعد / No projects yet'), findsOneWidget);
   });
 
-  testWidgets('shows saved project details', (tester) async {
+  testWidgets('opens a saved project and persists edited details',
+      (tester) async {
     final store = _FakeProjectStore([
       QxProject(
         id: 'demo-1',
@@ -28,9 +29,23 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: MyProjectsPage(store: store)));
     await tester.pump();
 
-    expect(find.text('Demo app'), findsOneWidget);
-    expect(find.text('تطبيق / App'), findsOneWidget);
-    expect(find.text('A local project'), findsOneWidget);
+    await tester.tap(find.text('Demo app'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('فتح المشروع / Open project'), findsOneWidget);
+    expect(find.text('تفاصيل المشروع / Project details'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).first, 'Updated app');
+    await tester.enterText(
+      find.byType(TextFormField).last,
+      'Updated local project',
+    );
+    await tester.tap(find.text('حفظ التعديلات / Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(store.projects.single.name, 'Updated app');
+    expect(store.projects.single.description, 'Updated local project');
+    expect(find.text('Updated app'), findsOneWidget);
   });
 }
 
@@ -41,4 +56,16 @@ class _FakeProjectStore extends ProjectStore {
 
   @override
   Future<List<QxProject>> getProjects() async => projects;
+
+  @override
+  Future<QxProject> updateProject(QxProject updatedProject) async {
+    final index = projects.indexWhere(
+      (project) => project.id == updatedProject.id,
+    );
+    if (index == -1) {
+      throw StateError('Project not found: ${updatedProject.id}');
+    }
+    projects[index] = updatedProject;
+    return updatedProject;
+  }
 }
