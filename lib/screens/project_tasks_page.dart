@@ -34,70 +34,26 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
   }
 
   Future<void> _addTask() async {
-    final titleController = TextEditingController();
-    final notesController = TextEditingController();
-    try {
-      final input = await showDialog<(String, String)>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('مهمة جديدة / New task'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  autofocus: true,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'عنوان المهمة / Task title',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: notesController,
-                  minLines: 2,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'ملاحظات (اختياري) / Notes (optional)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('إلغاء / Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop((
-                titleController.text,
-                notesController.text,
-              )),
-              child: const Text('إضافة / Add'),
-            ),
-          ],
+    final input = await showDialog<(String, String)>(
+      context: context,
+      builder: (_) => const _AddTaskDialog(),
+    );
+    if (input == null || !mounted) return;
+    if (input.$1.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('أدخل عنوان المهمة / Enter a task title'),
         ),
       );
-      if (input == null || !mounted) return;
-      if (input.$1.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('أدخل عنوان المهمة / Enter a task title'),
-          ),
-        );
-        return;
-      }
+      return;
+    }
+    try {
       await _store.addTask(
         widget.project,
         title: input.$1,
         notes: input.$2,
       );
-      if (!mounted) return;
-      await _reload();
+      if (mounted) await _reload();
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,9 +61,6 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
           content: Text('تعذّرت إضافة المهمة / Could not add task'),
         ),
       );
-    } finally {
-      titleController.dispose();
-      notesController.dispose();
     }
   }
 
@@ -230,6 +183,69 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
             );
           },
         ),
+      );
+}
+
+class _AddTaskDialog extends StatefulWidget {
+  const _AddTaskDialog();
+
+  @override
+  State<_AddTaskDialog> createState() => _AddTaskDialogState();
+}
+
+class _AddTaskDialogState extends State<_AddTaskDialog> {
+  final _titleController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text('مهمة جديدة / New task'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                autofocus: true,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'عنوان المهمة / Task title',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _notesController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'ملاحظات (اختياري) / Notes (optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('إلغاء / Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop((
+              _titleController.text,
+              _notesController.text,
+            )),
+            child: const Text('إضافة / Add'),
+          ),
+        ],
       );
 }
 
