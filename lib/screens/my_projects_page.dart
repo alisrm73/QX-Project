@@ -73,7 +73,8 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
               return const _MessageState(
                 icon: Icons.folder_open_rounded,
                 message: 'لا توجد مشاريع بعد / No projects yet',
-                detail: 'أنشئ مشروعك الأول من الصفحة الرئيسية / Create your first project from Home',
+                detail:
+                    'أنشئ مشروعك الأول من الصفحة الرئيسية / Create your first project from Home',
               );
             }
 
@@ -92,40 +93,66 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                       onTap: () => _openProject(project),
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF151923),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withValues(alpha: .07)),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF7566F2).withValues(alpha: .16),
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          child: const Icon(Icons.folder_rounded, color: Color(0xFFAA9FFF)),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(project.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
-                              const SizedBox(height: 4),
-                              Text(project.type, style: const TextStyle(color: Color(0xFFAA9FFF), fontSize: 12)),
-                              if (project.description.isNotEmpty) ...[
-                                const SizedBox(height: 5),
-                                Text(project.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF969BAD), fontSize: 12)),
-                              ],
-                            ],
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF151923),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: .07),
                           ),
                         ),
-                      ],
-                    ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF7566F2)
+                                    .withValues(alpha: .16),
+                                borderRadius: BorderRadius.circular(13),
+                              ),
+                              child: const Icon(
+                                Icons.folder_rounded,
+                                color: Color(0xFFAA9FFF),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    project.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    project.type,
+                                    style: const TextStyle(
+                                      color: Color(0xFFAA9FFF),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  if (project.description.isNotEmpty) ...[
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      project.description,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Color(0xFF969BAD),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -161,14 +188,28 @@ class _MessageState extends StatelessWidget {
             children: [
               Icon(icon, size: 46, color: const Color(0xFF9286FF)),
               const SizedBox(height: 14),
-              Text(message, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
               if (detail != null) ...[
                 const SizedBox(height: 8),
-                Text(detail!, textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF969BAD), fontSize: 12)),
+                Text(
+                  detail!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF969BAD),
+                    fontSize: 12,
+                  ),
+                ),
               ],
               if (actionLabel != null && onAction != null) ...[
                 const SizedBox(height: 16),
-                FilledButton.tonal(onPressed: onAction, child: Text(actionLabel!)),
+                FilledButton.tonal(
+                  onPressed: onAction,
+                  child: Text(actionLabel!),
+                ),
               ],
             ],
           ),
