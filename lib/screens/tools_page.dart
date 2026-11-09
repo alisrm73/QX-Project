@@ -413,7 +413,7 @@ class _ChatGptConnectorCard extends StatelessWidget {
         child: ListTile(
           leading: const Icon(Icons.auto_awesome, color: Color(0xFF55C99A)),
           title: const Text('ChatGPT · مساعد QX'),
-          subtitle: const Text('أول أداة ربط · جاهز للاتصال لاحقاً / First assistant connector · prepared'),
+          subtitle: const Text('أول مساعد داخل التطبيق / First in-app assistant'),
           trailing: const Icon(Icons.chevron_left_rounded),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
