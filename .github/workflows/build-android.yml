@@ -35,6 +35,7 @@ jobs:
           flutter create --platforms=android --org com.qxstudio --project-name qx_studio android_shell
           cp -R android_shell/android ./android
           rm -rf android_shell
+          sed -i '/<manifest /a\    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
 
       - name: Resolve packages
         run: flutter pub get

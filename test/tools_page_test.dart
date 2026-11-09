@@ -33,6 +33,11 @@ void main() {
     expect(find.text('الملفات: 0 / Files'), findsOneWidget);
     expect(find.text('المجلدات: 0 / Folders'), findsOneWidget);
     expect(find.text('أنشئ index.html لتفعيل المعاينة / Create index.html to enable preview'), findsOneWidget);
+    expect(find.text('تحليل مساحة العمل / Workspace analysis'), findsOneWidget);
+
+    await tester.tap(find.text('تشغيل / Run'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('اكتمل التحليل:'), findsOneWidget);
   });
 
   testWidgets('detects web preview files and enables preview action', (tester) async {
@@ -77,4 +82,16 @@ class _FakeWorkspaceStore extends WorkspaceStore {
 
   @override
   Future<List<WorkspaceEntry>> listEntries(QxProject project) async => entries;
+
+  @override
+  Future<WorkspaceAnalysis> analyzeWorkspace(QxProject project) async =>
+      WorkspaceAnalysis(
+        fileCount: entries.where((entry) => !entry.isDirectory).length,
+        directoryCount: entries.where((entry) => entry.isDirectory).length,
+        totalBytes: entries.fold<int>(0, (total, entry) => total + entry.size),
+        extensionCounts: const {},
+        hasIndexHtml: entries.any((entry) => entry.relativePath == 'index.html'),
+        hasStyleCss: entries.any((entry) => entry.relativePath == 'style.css'),
+        hasScriptJs: entries.any((entry) => entry.relativePath == 'script.js'),
+      );
 }
