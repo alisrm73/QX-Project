@@ -119,7 +119,13 @@ class QxHomePage extends StatelessWidget {
                                                   builder: (_) => const ToolsPage(),
                                                 ),
                                               )
-                                          : null,
+                                          : index == 5
+                                              ? () => Navigator.of(context).push(
+                                                    MaterialPageRoute<void>(
+                                                      builder: (_) => const LibraryPage(),
+                                                    ),
+                                                  )
+                                              : null,
                         ),
                         childCount: _cards.length,
                       ),
