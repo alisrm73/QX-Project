@@ -69,6 +69,37 @@ void main() {
     );
   });
 
+  test('loads the web preview entry point and optional local assets', () async {
+    await store.createTextFile(
+      project,
+      fileName: 'index.html',
+      content: '<html><head></head><body>QX</body></html>',
+    );
+    await store.createTextFile(
+      project,
+      fileName: 'style.css',
+      content: 'body { color: purple; }',
+    );
+    await store.createTextFile(
+      project,
+      fileName: 'script.js',
+      content: 'document.title = "QX";',
+    );
+
+    final preview = await store.loadWebPreview(project);
+
+    expect(preview.html, contains('<body>QX</body>'));
+    expect(preview.css, 'body { color: purple; }');
+    expect(preview.js, 'document.title = "QX";');
+  });
+
+  test('requires index.html to open a web preview', () async {
+    await expectLater(
+      store.loadWebPreview(project),
+      throwsA(isA<FileSystemException>()),
+    );
+  });
+
   test('does not overwrite an existing file when creating a file', () async {
     await store.createTextFile(project, fileName: 'README.md', content: 'first');
 

@@ -4,6 +4,7 @@ import '../models/qx_project.dart';
 import '../services/project_store.dart';
 import '../services/workspace_store.dart';
 import 'file_editor_page.dart';
+import 'project_preview_page.dart';
 
 class WorkspacePage extends StatefulWidget {
   const WorkspacePage({
@@ -224,12 +225,28 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
     }
   }
 
+  Future<void> _openPreview() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProjectPreviewPage(
+          project: widget.project,
+          store: widget.store,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.project.name),
           backgroundColor: const Color(0xFF0B0D13),
           actions: [
+            IconButton(
+              tooltip: 'معاينة / Preview',
+              onPressed: _openPreview,
+              icon: const Icon(Icons.play_arrow_rounded),
+            ),
             IconButton(
               tooltip: 'ملف جديد / New file',
               onPressed: _createFile,

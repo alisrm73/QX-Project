@@ -19,6 +19,13 @@ class WorkspaceEntry {
   final int size;
 }
 
+class WorkspacePreviewContent {
+  const WorkspacePreviewContent({required this.html, required this.css, required this.js});
+  final String html;
+  final String css;
+  final String js;
+}
+
 class WorkspaceStore {
   WorkspaceStore({Future<Directory> Function()? directoryProvider})
       : _directoryProvider =
@@ -90,6 +97,20 @@ class WorkspaceStore {
       );
     }
     return file.readAsString();
+  }
+
+  Future<WorkspacePreviewContent> loadWebPreview(QxProject project) async {
+    final html = await readTextFile(project, 'index.html');
+    Future<String> optional(String name) async {
+      final file = await _fileFor(project, name);
+      if (!await file.exists()) return '';
+      return readTextFile(project, name);
+    }
+    return WorkspacePreviewContent(
+      html: html,
+      css: await optional('style.css'),
+      js: await optional('script.js'),
+    );
   }
 
   Future<void> createTextFile(
