@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
+import 'project_editor_page.dart';
 
 class MyProjectsPage extends StatefulWidget {
   const MyProjectsPage({super.key, this.store});
@@ -30,6 +31,19 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
   Future<void> _refresh() async {
     setState(_loadProjects);
     await _projectsFuture;
+  }
+
+  Future<void> _openProject(QxProject project) async {
+    await Navigator.of(context).push<QxProject>(
+      MaterialPageRoute(
+        builder: (_) => ProjectEditorPage(
+          project: project,
+          store: _store,
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _refresh();
   }
 
   @override
@@ -71,7 +85,13 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final project = projects[index];
-                  return Container(
+                  return Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                    child: InkWell(
+                      onTap: () => _openProject(project),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: const Color(0xFF151923),
@@ -105,6 +125,8 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                           ),
                         ),
                       ],
+                    ),
+                      ),
                     ),
                   );
                 },
