@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'models/qx_project.dart';
 import 'services/project_store.dart';
 
 void main() => runApp(const QxStudioApp());
