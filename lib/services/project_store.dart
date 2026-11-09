@@ -51,6 +51,43 @@ class ProjectStore {
     );
 
     projects.add(project);
+    await _writeProjects(projects);
+    return project;
+  }
+
+  Future<QxProject> updateProject(QxProject updatedProject) async {
+    final projects = (await getProjects()).toList();
+    final index = projects.indexWhere(
+      (project) => project.id == updatedProject.id,
+    );
+    if (index == -1) {
+      throw StateError('Project not found: ${updatedProject.id}');
+    }
+
+    final cleanName = updatedProject.name.trim();
+    if (cleanName.isEmpty) {
+      throw ArgumentError.value(
+        updatedProject.name,
+        'name',
+        'Project name cannot be empty.',
+      );
+    }
+
+    final savedProject = QxProject(
+      id: updatedProject.id,
+      name: cleanName,
+      type: updatedProject.type.trim().isEmpty
+          ? 'مشروع عام'
+          : updatedProject.type.trim(),
+      description: updatedProject.description.trim(),
+      createdAt: updatedProject.createdAt,
+    );
+    projects[index] = savedProject;
+    await _writeProjects(projects);
+    return savedProject;
+  }
+
+  Future<void> _writeProjects(List<QxProject> projects) async {
     final file = await _projectsFile();
     await file.writeAsString(
       const JsonEncoder.withIndent('  ').convert(
@@ -58,7 +95,6 @@ class ProjectStore {
       ),
       flush: true,
     );
-    return project;
   }
 
   Future<File> _projectsFile() async {
