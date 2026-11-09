@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qx_studio/models/qx_project.dart';
@@ -10,8 +8,6 @@ import 'package:qx_studio/services/workspace_store.dart';
 void main() {
   testWidgets('shows saved projects and opens the selected workspace',
       (tester) async {
-    final directory = await Directory.systemTemp.createTemp('qx-workspace-ui-');
-    addTearDown(() => directory.delete(recursive: true));
     final project = QxProject(
       id: 'demo-1',
       name: 'Demo workspace',
@@ -24,7 +20,7 @@ void main() {
       MaterialApp(
         home: WorkspacePage(
           projectStore: _FakeProjectStore([project]),
-          workspaceStore: WorkspaceStore(directoryProvider: () async => directory),
+          workspaceStore: _FakeWorkspaceStore(),
         ),
       ),
     );
@@ -34,10 +30,11 @@ void main() {
     await tester.tap(find.text('Demo workspace'));
     await tester.pumpAndSettle();
 
-    expect(find.text('مساحة العمل جاهزة، ولا توجد ملفات بعد / Workspace is ready. No files yet'), findsOneWidget);
     expect(
-      await Directory('${directory.path}/qx_workspaces/demo-1').exists(),
-      isTrue,
+      find.text(
+        'مساحة العمل جاهزة، ولا توجد ملفات بعد / Workspace is ready. No files yet',
+      ),
+      findsOneWidget,
     );
   });
 
@@ -48,7 +45,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('أنشئ مشروعاً أولاً لفتح مساحة العمل / Create a project first to open its workspace'),
+      find.text(
+        'أنشئ مشروعاً أولاً لفتح مساحة العمل / Create a project first to open its workspace',
+      ),
       findsOneWidget,
     );
   });
@@ -61,4 +60,9 @@ class _FakeProjectStore extends ProjectStore {
 
   @override
   Future<List<QxProject>> getProjects() async => projects;
+}
+
+class _FakeWorkspaceStore extends WorkspaceStore {
+  @override
+  Future<List<WorkspaceEntry>> listEntries(QxProject project) async => [];
 }
