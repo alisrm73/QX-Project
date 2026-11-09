@@ -130,9 +130,7 @@ class _ProjectEditorPageState extends State<ProjectEditorPage> {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        initialValue: _projectTypes.contains(_projectType)
-                            ? _projectType
-                            : null,
+                        initialValue: _projectType,
                         decoration: const InputDecoration(
                           labelText: 'نوع المشروع / Project type',
                           border: OutlineInputBorder(),
