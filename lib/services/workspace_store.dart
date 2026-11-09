@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
@@ -22,6 +23,8 @@ class WorkspaceStore {
   WorkspaceStore({Future<Directory> Function()? directoryProvider})
       : _directoryProvider =
             directoryProvider ?? getApplicationDocumentsDirectory;
+
+  static const maxTextFileBytes = 1024 * 1024;
 
   final Future<Directory> Function() _directoryProvider;
 
@@ -48,7 +51,8 @@ class WorkspaceStore {
           type != FileSystemEntityType.directory) {
         continue;
       }
-      final name = entity.uri.pathSegments.where((part) => part.isNotEmpty).last;
+      final name =
+          entity.uri.pathSegments.where((part) => part.isNotEmpty).last;
       final isDirectory = type == FileSystemEntityType.directory;
       final size = isDirectory ? 0 : await File(entity.path).length();
       entries.add(
@@ -67,5 +71,79 @@ class WorkspaceStore {
       return a.name.toLowerCase().compareTo(b.name.toLowerCase());
     });
     return entries;
+  }
+
+  Future<String> readTextFile(QxProject project, String fileName) async {
+    final file = await _fileFor(project, fileName);
+    final type = await FileSystemEntity.type(file.path, followLinks: false);
+    if (type != FileSystemEntityType.file) {
+      throw FileSystemException(
+        'The selected item is not a regular file.',
+        file.path,
+      );
+    }
+    final length = await file.length();
+    if (length > maxTextFileBytes) {
+      throw FileSystemException(
+        'Text file exceeds the 1 MB editor limit.',
+        file.path,
+      );
+    }
+    return file.readAsString();
+  }
+
+  Future<void> createTextFile(
+    QxProject project, {
+    required String fileName,
+    String content = '',
+  }) async {
+    _validateFileName(fileName);
+    _validateContent(content);
+    final workspace = await ensureWorkspace(project);
+    final file = File('${workspace.path}/$fileName');
+    await file.create(exclusive: true);
+    await file.writeAsString(content, flush: true);
+  }
+
+  Future<void> writeTextFile(
+    QxProject project, {
+    required String fileName,
+    required String content,
+  }) async {
+    _validateFileName(fileName);
+    _validateContent(content);
+    final file = await _fileFor(project, fileName);
+    final type = await FileSystemEntity.type(file.path, followLinks: false);
+    if (type != FileSystemEntityType.file) {
+      throw FileSystemException(
+        'The selected item is not a regular file.',
+        file.path,
+      );
+    }
+    await file.writeAsString(content, flush: true);
+  }
+
+  Future<File> _fileFor(QxProject project, String fileName) async {
+    _validateFileName(fileName);
+    final workspace = await ensureWorkspace(project);
+    return File('${workspace.path}/$fileName');
+  }
+
+  void _validateFileName(String fileName) {
+    if (fileName.trim().isEmpty ||
+        fileName != fileName.trim() ||
+        fileName == '.' ||
+        fileName == '..' ||
+        fileName.contains('/') ||
+        fileName.contains(String.fromCharCode(92)) ||
+        fileName.contains('\u0000')) {
+      throw ArgumentError.value(fileName, 'fileName', 'Invalid file name.');
+    }
+  }
+
+  void _validateContent(String content) {
+    if (utf8.encode(content).length > maxTextFileBytes) {
+      throw ArgumentError.value(content, 'content', 'Text file is too large.');
+    }
   }
 }

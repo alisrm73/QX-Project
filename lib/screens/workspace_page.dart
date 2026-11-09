@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
 import '../services/workspace_store.dart';
+import 'file_editor_page.dart';
 
 class WorkspacePage extends StatefulWidget {
   const WorkspacePage({
@@ -129,11 +130,112 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
     await _entriesFuture;
   }
 
+  Future<void> _createFile() async {
+    final controller = TextEditingController();
+    try {
+      final fileName = await showDialog<String>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('ملف جديد / New file'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (value) =>
+                Navigator.of(dialogContext).pop(value.trim()),
+            decoration: const InputDecoration(
+              labelText: 'اسم الملف / File name',
+              hintText: 'مثال: main.dart',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('إلغاء / Cancel'),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: const Text('إنشاء / Create'),
+            ),
+          ],
+        ),
+      );
+      if (fileName == null || fileName.isEmpty || !mounted) return;
+
+      await widget.store.createTextFile(
+        widget.project,
+        fileName: fileName,
+      );
+      if (!mounted) return;
+      await _reload();
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => FileEditorPage(
+            project: widget.project,
+            store: widget.store,
+            fileName: fileName,
+            initialContent: '',
+          ),
+        ),
+      );
+      if (mounted) await _reload();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'تعذّر إنشاء الملف. تحقق من الاسم / Could not create file. Check the file name.',
+          ),
+        ),
+      );
+    } finally {
+      controller.dispose();
+    }
+  }
+
+  Future<void> _openFile(WorkspaceEntry entry) async {
+    try {
+      final content =
+          await widget.store.readTextFile(widget.project, entry.relativePath);
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => FileEditorPage(
+            project: widget.project,
+            store: widget.store,
+            fileName: entry.relativePath,
+            initialContent: content,
+          ),
+        ),
+      );
+      if (mounted) await _reload();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'تعذّر فتح الملف النصي / Could not open this text file',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.project.name),
           backgroundColor: const Color(0xFF0B0D13),
+          actions: [
+            IconButton(
+              tooltip: 'ملف جديد / New file',
+              onPressed: _createFile,
+              icon: const Icon(Icons.note_add_outlined),
+            ),
+          ],
         ),
         backgroundColor: const Color(0xFF0B0D13),
         body: FutureBuilder<List<WorkspaceEntry>>(
@@ -151,10 +253,10 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
             }
             final entries = snapshot.data ?? const <WorkspaceEntry>[];
             if (entries.isEmpty) {
-              return const _WorkspaceMessage(
+              return _WorkspaceMessage(
                 icon: Icons.folder_open_rounded,
                 message: 'مساحة العمل جاهزة، ولا توجد ملفات بعد / Workspace is ready. No files yet',
-                detail: 'سيظهر مستكشف الملفات هنا عند إضافة الملفات والمجلدات',
+                detail: 'استخدم زر الملف الجديد لإنشاء ملف وبدء تحريره / Use New file to create and edit a file',
               );
             }
             return RefreshIndicator(
@@ -175,8 +277,12 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
                     subtitle: Text(
                       entry.isDirectory
                           ? 'مجلد / Folder'
-                          : '${entry.size} bytes',
+                          : '${entry.size} bytes · ملف نصي / Text file',
                     ),
+                    trailing: entry.isDirectory
+                        ? null
+                        : const Icon(Icons.edit_outlined),
+                    onTap: entry.isDirectory ? null : () => _openFile(entry),
                   );
                 },
               ),

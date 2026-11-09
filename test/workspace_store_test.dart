@@ -48,6 +48,48 @@ void main() {
     expect(entries.last.size, 2);
   });
 
+  test('creates, reads, and updates a local text file', () async {
+    await store.createTextFile(
+      project,
+      fileName: 'main.dart',
+      content: 'void main() {}',
+    );
+
+    expect(await store.readTextFile(project, 'main.dart'), 'void main() {}');
+
+    await store.writeTextFile(
+      project,
+      fileName: 'main.dart',
+      content: 'void main() { print("QX"); }',
+    );
+
+    expect(
+      await store.readTextFile(project, 'main.dart'),
+      'void main() { print("QX"); }',
+    );
+  });
+
+  test('does not overwrite an existing file when creating a file', () async {
+    await store.createTextFile(project, fileName: 'README.md', content: 'first');
+
+    await expectLater(
+      store.createTextFile(project, fileName: 'README.md', content: 'second'),
+      throwsA(isA<FileSystemException>()),
+    );
+    expect(await store.readTextFile(project, 'README.md'), 'first');
+  });
+
+  test('rejects file names that could escape workspace storage', () async {
+    await expectLater(
+      store.createTextFile(project, fileName: '../outside.txt'),
+      throwsArgumentError,
+    );
+    await expectLater(
+      store.readTextFile(project, '..\\outside.txt'),
+      throwsArgumentError,
+    );
+  });
+
   test('rejects project identifiers that could escape workspace storage', () async {
     final invalid = QxProject(
       id: '../outside',
