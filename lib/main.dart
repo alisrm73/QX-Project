@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'services/project_store.dart';
+import 'screens/my_projects_page.dart';
+import 'screens/workspace_page.dart';
+import 'screens/tools_page.dart';
+
 void main() => runApp(const QxStudioApp());
 
 class QxStudioApp extends StatelessWidget {
@@ -34,12 +39,12 @@ class QxHomePage extends StatelessWidget {
   const QxHomePage({super.key});
 
   static const _cards = <_StudioCardData>[
-    _StudioCardData('مشروع جديد', 'ابدأ فكرة وحوّلها إلى مشروع', Icons.add_rounded, Color(0xFF7868F6)),
-    _StudioCardData('مشاريعي', 'تابع أعمالك من مكان واحد', Icons.folder_open_rounded, Color(0xFF3D9BE9)),
-    _StudioCardData('QX Core', 'محرك التحليل والتخطيط', Icons.hub_rounded, Color(0xFF25B99A)),
-    _StudioCardData('مساحة العمل', 'طوّر مشروعك خطوة بخطوة', Icons.dashboard_customize_rounded, Color(0xFFE39A4D)),
-    _StudioCardData('الأدوات', 'أدوات البناء والإنتاج', Icons.widgets_rounded, Color(0xFFD477B8)),
-    _StudioCardData('المكتبة', 'ملفاتك ومكوّناتك', Icons.auto_awesome_mosaic_rounded, Color(0xFF5D9EAA)),
+    _StudioCardData('مشروع جديد / New project', 'ابدأ فكرتك / Turn your idea into a project', Icons.add_rounded, Color(0xFF7868F6)),
+    _StudioCardData('مشاريعي / My projects', 'تابع أعمالك / Manage your work', Icons.folder_open_rounded, Color(0xFF3D9BE9)),
+    _StudioCardData('QX Core', 'محرك التحليل / Analysis engine', Icons.hub_rounded, Color(0xFF25B99A)),
+    _StudioCardData('مساحة العمل / Workspace', 'طوّر مشروعك / Build your project', Icons.dashboard_customize_rounded, Color(0xFFE39A4D)),
+    _StudioCardData('الأدوات / Tools', 'أدوات البناء / Build tools', Icons.widgets_rounded, Color(0xFFD477B8)),
+    _StudioCardData('المكتبة / Library', 'ملفاتك ومكوّناتك / Your files and components', Icons.auto_awesome_mosaic_rounded, Color(0xFF5D9EAA)),
   ];
 
   @override
@@ -54,15 +59,19 @@ class QxHomePage extends StatelessWidget {
               child: CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(child: _TopBar(compact: compact)),
-                  SliverToBoxAdapter(child: _WelcomePanel()),
+                  SliverToBoxAdapter(
+                    child: _WelcomePanel(
+                      onCreateProject: () => _showCreateProjectDialog(context),
+                    ),
+                  ),
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 22, 16, 12),
                     sliver: SliverToBoxAdapter(
                       child: Row(
                         children: [
-                          const Text('مساحتك في QX', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                          const Text('مساحتك في QX / Your QX space', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                           const Spacer(),
-                          Text('عرض الكل', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, fontWeight: FontWeight.w600)),
+                          Text('عرض الكل / View all', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, fontWeight: FontWeight.w600)),
                         ],
                       ),
                     ),
@@ -71,7 +80,30 @@ class QxHomePage extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                     sliver: SliverGrid(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => _FeatureCard(data: _cards[index]),
+                        (context, index) => _FeatureCard(
+                          data: _cards[index],
+                          onTap: index == 0
+                              ? () => _showCreateProjectDialog(context)
+                              : index == 1
+                                  ? () => Navigator.of(context).push(
+                                        MaterialPageRoute<void>(
+                                          builder: (_) => const MyProjectsPage(),
+                                        ),
+                                      )
+                                  : index == 3
+                                      ? () => Navigator.of(context).push(
+                                            MaterialPageRoute<void>(
+                                              builder: (_) => const WorkspacePage(),
+                                            ),
+                                          )
+                                      : index == 4
+                                          ? () => Navigator.of(context).push(
+                                                MaterialPageRoute<void>(
+                                                  builder: (_) => const ToolsPage(),
+                                                ),
+                                              )
+                                          : null,
+                        ),
                         childCount: _cards.length,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -91,6 +123,138 @@ class QxHomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _showCreateProjectDialog(BuildContext context) async {
+  final nameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  var projectType = 'مشروع عام / General project';
+  var isSaving = false;
+
+  try {
+    final input = await showDialog<_NewProjectInput>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('إنشاء مشروع جديد / New project'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelText: 'اسم المشروع / Project name',
+                    hintText: 'اكتب اسم مشروعك / Enter project name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                DropdownButtonFormField<String>(
+                  initialValue: projectType,
+                  decoration: const InputDecoration(
+                    labelText: 'نوع المشروع / Project type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'مشروع عام / General project', child: Text('مشروع عام / General project')),
+                    DropdownMenuItem(value: 'تطبيق / App', child: Text('تطبيق / App')),
+                    DropdownMenuItem(value: 'موقع إلكتروني / Website', child: Text('موقع إلكتروني / Website')),
+                    DropdownMenuItem(value: 'أداة / Tool', child: Text('أداة / Tool')),
+                  ],
+                  onChanged: isSaving
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            setDialogState(() => projectType = value);
+                          }
+                        },
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: descriptionController,
+                  minLines: 2,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'وصف مختصر (اختياري) / Short description (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSaving
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(),
+              child: const Text('إلغاء / Cancel'),
+            ),
+            FilledButton(
+              onPressed: isSaving
+                  ? null
+                  : () {
+                      final name = nameController.text.trim();
+                      if (name.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('يرجى إدخال اسم المشروع / Please enter a project name / Project name')),
+                        );
+                        return;
+                      }
+                      setDialogState(() => isSaving = true);
+                      Navigator.of(dialogContext).pop(
+                        _NewProjectInput(
+                          name: name,
+                          type: projectType,
+                          description: descriptionController.text.trim(),
+                        ),
+                      );
+                    },
+              child: const Text('إنشاء وحفظ / Create & save'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (input == null || !context.mounted) return;
+
+    try {
+      final project = await ProjectStore().createProject(
+        name: input.name,
+        type: input.type,
+        description: input.description,
+      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تم حفظ المشروع «${project.name}» على الهاتف / Project saved on this device')),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذّر حفظ المشروع / Could not save project. Check storage and try again.')),
+      );
+    }
+  } finally {
+    nameController.dispose();
+    descriptionController.dispose();
+  }
+}
+
+class _NewProjectInput {
+  const _NewProjectInput({
+    required this.name,
+    required this.type,
+    required this.description,
+  });
+
+  final String name;
+  final String type;
+  final String description;
 }
 
 class _TopBar extends StatelessWidget {
@@ -129,6 +293,10 @@ class _TopBar extends StatelessWidget {
 }
 
 class _WelcomePanel extends StatelessWidget {
+  const _WelcomePanel({required this.onCreateProject});
+
+  final VoidCallback onCreateProject;
+
   @override
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -148,17 +316,17 @@ class _WelcomePanel extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(color: const Color(0xFF796AF4).withValues(alpha: .18), borderRadius: BorderRadius.circular(20)),
-              child: const Text('من الفكرة إلى الإنجاز', style: TextStyle(color: Color(0xFFC2BAFF), fontSize: 10, fontWeight: FontWeight.w700)),
+              child: const Text('من الفكرة إلى الإنجاز / From idea to delivery', style: TextStyle(color: Color(0xFFC2BAFF), fontSize: 10, fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: 13),
-            const Text('أهلاً بك في QX Studio', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
+            const Text('أهلاً بك في QX Studio / Welcome to QX Studio', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            const Text('أنشئ مشاريعك، نظّم أفكارك، وطوّرها ضمن مساحة واحدة.', style: TextStyle(color: Color(0xFFB4B7C7), fontSize: 12, height: 1.6)),
+            const Text('أنشئ مشاريعك ونظّم أفكارك / Create and manage projects in one place.', style: TextStyle(color: Color(0xFFB4B7C7), fontSize: 12, height: 1.6)),
             const SizedBox(height: 15),
             FilledButton.icon(
-              onPressed: () {},
+              onPressed: onCreateProject,
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('ابدأ مشروعاً جديداً'),
+              label: const Text('ابدأ مشروعاً جديداً / Create a new project'),
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF7566F2),
                 foregroundColor: Colors.white,
@@ -173,31 +341,40 @@ class _WelcomePanel extends StatelessWidget {
 }
 
 class _FeatureCard extends StatelessWidget {
-  const _FeatureCard({required this.data});
+  const _FeatureCard({required this.data, this.onTap});
   final _StudioCardData data;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF151923),
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white.withValues(alpha: .065)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(color: data.color.withValues(alpha: .15), borderRadius: BorderRadius.circular(12)),
-              child: Icon(data.icon, color: data.color, size: 21),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF151923),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.white.withValues(alpha: .065)),
             ),
-            const Spacer(),
-            Text(data.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 4),
-            Text(data.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF969BAD), fontSize: 10)),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(color: data.color.withValues(alpha: .15), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(data.icon, color: data.color, size: 21),
+                ),
+                const Spacer(),
+                Text(data.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                Text(data.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF969BAD), fontSize: 10)),
+              ],
+            ),
+          ),
         ),
       );
 }
