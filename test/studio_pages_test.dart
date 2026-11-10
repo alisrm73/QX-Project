@@ -38,8 +38,8 @@ void main() {
 
     expect(find.text('QX Core'), findsOneWidget);
     expect(find.text('QX Demo'), findsOneWidget);
-    expect(find.text('2'), findsOneWidget);
-    expect(find.text('3'), findsOneWidget);
+    expect(find.text('2'), findsNWidgets(2));
+    expect(find.text('6'), findsOneWidget);
   });
 
   testWidgets('Library lists the saved local projects', (tester) async {
