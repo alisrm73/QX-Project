@@ -198,6 +198,54 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
     }
   }
 
+  Future<void> _createFolder() async {
+    final controller = TextEditingController();
+    try {
+      final folderPath = await showDialog<String>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('مجلد جديد / New folder'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (value) => Navigator.of(dialogContext).pop(value.trim()),
+            decoration: const InputDecoration(
+              labelText: 'مسار المجلد / Folder path',
+              hintText: 'مثال: lib/components',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('إلغاء / Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: const Text('إنشاء / Create'),
+            ),
+          ],
+        ),
+      );
+      if (folderPath == null || folderPath.isEmpty || !mounted) return;
+      await widget.store.createDirectory(widget.project, directoryPath: folderPath);
+      if (!mounted) return;
+      await _reload();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم إنشاء المجلد / Folder created')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذّر إنشاء المجلد أو أن المسار موجود / Could not create folder or path already exists')),
+      );
+    } finally {
+      controller.dispose();
+    }
+  }
+
   Future<void> _openFile(WorkspaceEntry entry) async {
     try {
       final content =
@@ -262,6 +310,11 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
               onPressed: _createFile,
               icon: const Icon(Icons.note_add_outlined),
             ),
+            IconButton(
+              tooltip: 'مجلد جديد / New folder',
+              onPressed: _createFolder,
+              icon: const Icon(Icons.create_new_folder_outlined),
+            ),
           ],
         ),
         backgroundColor: const Color(0xFF0B0D13),
@@ -300,7 +353,7 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
                           : Icons.insert_drive_file_outlined,
                       color: const Color(0xFF9286FF),
                     ),
-                    title: Text(entry.name),
+                    title: Text(entry.relativePath),
                     subtitle: Text(
                       entry.isDirectory
                           ? 'مجلد / Folder'
