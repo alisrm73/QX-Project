@@ -76,7 +76,7 @@ void main() {
     await tester.tap(find.text('حفظ على الهاتف / Save locally'));
     await tester.pumpAndSettle();
 
-    expect(store.saved?.displayName, 'QX Operator');
+    expect(store.saved.displayName, 'QX Operator');
     expect(find.text('تم حفظ الملف على الهاتف / Profile saved on this device'),
         findsOneWidget);
   });
