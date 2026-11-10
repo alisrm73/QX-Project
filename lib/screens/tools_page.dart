@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
 import '../services/workspace_store.dart';
+import '../services/tool_engine.dart';
 import 'project_preview_page.dart';
 
 class ToolsPage extends StatefulWidget {
@@ -57,8 +58,13 @@ class _ToolsPageState extends State<ToolsPage> {
             }
             final projects = snapshot.data ?? const <QxProject>[];
             if (projects.isEmpty) {
-              return const _ToolsMessage(
-                message: 'أنشئ مشروعاً أولاً لاستخدام الأدوات / Create a project first to use the tools',
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const _ToolsMessage(
+                    message: 'أنشئ مشروعاً أولاً لاستخدام أدوات المشروع / Create a project first to use project tools',
+                  ),
+                ],
               );
             }
             return RefreshIndicator(
@@ -105,10 +111,12 @@ class ProjectToolsPage extends StatefulWidget {
     super.key,
     required this.project,
     required this.store,
+    this.toolRegistry,
   });
 
   final QxProject project;
   final WorkspaceStore store;
+  final QxToolRegistry? toolRegistry;
 
   @override
   State<ProjectToolsPage> createState() => _ProjectToolsPageState();
@@ -116,6 +124,34 @@ class ProjectToolsPage extends StatefulWidget {
 
 class _ProjectToolsPageState extends State<ProjectToolsPage> {
   late Future<List<WorkspaceEntry>> _entriesFuture;
+  late final QxToolRegistry _toolRegistry =
+      widget.toolRegistry ?? QxToolRegistry.standard();
+  QxToolResult? _lastToolResult;
+  bool _isRunningTool = false;
+
+  Future<void> _runTool(String toolId) async {
+    setState(() => _isRunningTool = true);
+    try {
+      final result = await _toolRegistry.run(
+        toolId,
+        QxToolContext(project: widget.project, workspaceStore: widget.store),
+      );
+      if (!mounted) return;
+      setState(() => _lastToolResult = result);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _lastToolResult = QxToolResult(
+          toolId: toolId,
+          success: false,
+          messageAr: 'فشل تشغيل الأداة. تحقق من مساحة العمل وحاول مجدداً.',
+          messageEn: 'Tool execution failed. Check the workspace and try again.',
+        );
+      });
+    } finally {
+      if (mounted) setState(() => _isRunningTool = false);
+    }
+  }
 
   @override
   void initState() {
@@ -185,6 +221,39 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  for (final tool in _toolRegistry.tools)
+                    Card(
+                      color: const Color(0xFF17231F),
+                      child: ListTile(
+                        leading: const Icon(Icons.play_circle_outline,
+                            color: Color(0xFF55C99A)),
+                        title: Text('${tool.nameAr} / ${tool.nameEn}'),
+                        subtitle: Text(tool.descriptionAr),
+                        trailing: FilledButton(
+                          onPressed: _isRunningTool ? null : () => _runTool(tool.id),
+                          child: Text(_isRunningTool
+                              ? 'جارٍ التنفيذ / Running'
+                              : 'تشغيل / Run'),
+                        ),
+                      ),
+                    ),
+                  if (_lastToolResult != null)
+                    Card(
+                      color: const Color(0xFF151923),
+                      child: ListTile(
+                        leading: Icon(
+                          _lastToolResult!.success
+                              ? Icons.check_circle_outline
+                              : Icons.error_outline,
+                          color: _lastToolResult!.success
+                              ? const Color(0xFF55C99A)
+                              : const Color(0xFFE28A8A),
+                        ),
+                        title: Text(_lastToolResult!.messageAr),
+                        subtitle: Text(_lastToolResult!.messageEn),
+                      ),
+                    ),
                   const SizedBox(height: 12),
                   Card(
                     color: const Color(0xFF151923),
