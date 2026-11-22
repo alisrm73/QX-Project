@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('الإعدادات والملف الشخصي / Settings & profile')),
+        appBar: AppBar(title: Text('الإعدادات والملف الشخصي / Settings & profile')),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -109,11 +109,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   const Icon(Icons.person_outline_rounded, size: 52, color: Color(0xFFAA9FFF)),
                   const SizedBox(height: 14),
-                  const Text('ملف مستخدم محلي / Local user profile',
+                  Text('ملف مستخدم محلي / Local user profile',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'لا يوجد تسجيل دخول أو كلمة سر أو اتصال بخادم. تُحفظ البيانات على هذا الهاتف فقط.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Color(0xFF9DA2B4)),
@@ -142,7 +142,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       setState(() => _selectedTheme = value);
                                     }
                                   },
-                            title: const Text('الوضع الداكن / Dark mode'),
+                            title: Text('الوضع الداكن / Dark mode'),
                           ),
                           RadioListTile<String>(
                             value: 'light',
@@ -154,8 +154,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                       setState(() => _selectedTheme = value);
                                     }
                                   },
-                            title: const Text('الوضع الفاتح / Light mode'),
-                            subtitle: const Text('أبيض عاجي دافئ / Warm ivory'),
+                            title: Text('الوضع الفاتح / Light mode'),
+                            subtitle: Text('أبيض عاجي دافئ / Warm ivory'),
                           ),
                         ],
                       ),
@@ -183,7 +183,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   OutlinedButton.icon(
                     onPressed: _openTelegram,
                     icon: const Icon(Icons.send_rounded),
-                    label: const Text(
+                    label: Text(
                       'فتح بوت Telegram / Open Telegram bot',
                     ),
                   ),
