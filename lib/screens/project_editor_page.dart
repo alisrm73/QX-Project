@@ -83,7 +83,7 @@ class _ProjectEditorPageState extends State<ProjectEditorPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('فتح المشروع / Open project'),
+          title: Text('فتح المشروع / Open project'),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -105,7 +105,7 @@ class _ProjectEditorPageState extends State<ProjectEditorPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'تفاصيل المشروع / Project details',
                         style: TextStyle(
                           fontSize: 17,
