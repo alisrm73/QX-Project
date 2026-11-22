@@ -19,7 +19,7 @@ void main() {
     var called = false;
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (_, {required headers, required body}) async {
+      requestSender: (_, {required headers, required body, required registerCancellation}) async {
         called = true;
         return const TelegramHttpResponse(statusCode: 200, body: '{"ok":true}');
       },
@@ -36,7 +36,7 @@ void main() {
     var called = false;
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (_, {required headers, required body}) async {
+      requestSender: (_, {required headers, required body, required registerCancellation}) async {
         called = true;
         return const TelegramHttpResponse(statusCode: 200, body: '{"ok":true}');
       },
@@ -57,7 +57,7 @@ void main() {
 
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (uri, {required headers, required body}) async {
+      requestSender: (uri, {required headers, required body, required registerCancellation}) async {
         calls++;
         requestedUri = uri;
         requestedHeaders = headers;
@@ -85,7 +85,7 @@ void main() {
     await _saveSettings(settingsStore);
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (_, {required headers, required body}) async =>
+      requestSender: (_, {required headers, required body, required registerCancellation}) async =>
           const TelegramHttpResponse(statusCode: 401, body: '{"ok":false}'),
     );
 
@@ -98,7 +98,7 @@ void main() {
     await _saveSettings(settingsStore);
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (_, {required headers, required body}) async =>
+      requestSender: (_, {required headers, required body, required registerCancellation}) async =>
           const TelegramHttpResponse(
         statusCode: 200,
         body: '{"ok":false,"description":"Unauthorized"}',
@@ -114,7 +114,7 @@ void main() {
     await _saveSettings(settingsStore);
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (_, {required headers, required body}) async =>
+      requestSender: (_, {required headers, required body, required registerCancellation}) async =>
           const TelegramHttpResponse(statusCode: 200, body: '<html>bad</html>'),
     );
 
@@ -123,26 +123,37 @@ void main() {
     expect(result.status, TelegramNotificationStatus.invalidResponse);
   });
 
-  test('returns timedOut when the request exceeds its deadline', () async {
+  test('cancels the transport when the request exceeds its deadline', () async {
     await _saveSettings(settingsStore);
     final neverCompletes = Completer<TelegramHttpResponse>();
+    var transportCancelled = false;
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
       timeout: const Duration(milliseconds: 1),
-      requestSender: (_, {required headers, required body}) =>
-          neverCompletes.future,
+      requestSender: (
+        _,
+        {
+          required headers,
+          required body,
+          required registerCancellation,
+        }
+      ) {
+        registerCancellation(() => transportCancelled = true);
+        return neverCompletes.future;
+      },
     );
 
     final result = await service.sendMessage('Build complete');
 
     expect(result.status, TelegramNotificationStatus.timedOut);
+    expect(transportCancelled, isTrue);
   });
 
   test('returns a sanitized networkError when transport throws', () async {
     await _saveSettings(settingsStore);
     final service = TelegramNotificationService(
       settingsStore: settingsStore,
-      requestSender: (_, {required headers, required body}) {
+      requestSender: (_, {required headers, required body, required registerCancellation}) {
         throw StateError('request failed for https://api.telegram.org/botTEST_TOKEN/sendMessage');
       },
     );
