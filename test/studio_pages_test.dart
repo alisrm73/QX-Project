@@ -7,6 +7,7 @@ import 'package:qx_studio/screens/search_page.dart';
 import 'package:qx_studio/screens/settings_page.dart';
 import 'package:qx_studio/services/local_profile_store.dart';
 import 'package:qx_studio/services/project_store.dart';
+import 'package:qx_studio/services/telegram_settings_store.dart';
 import 'package:qx_studio/services/workspace_store.dart';
 
 void main() {
@@ -69,10 +70,15 @@ void main() {
   testWidgets('Settings loads and persists the local display name', (tester) async {
     final store = _MemoryProfileStore();
 
-    await tester.pumpWidget(MaterialApp(home: SettingsPage(store: store)));
+    await tester.pumpWidget(MaterialApp(
+      home: SettingsPage(
+        store: store,
+        telegramStore: _MemoryTelegramSettingsStore(),
+      ),
+    ));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField), 'QX Operator');
+    await tester.enterText(find.byType(TextField).first, 'QX Operator');
     await tester.tap(find.text('حفظ على الهاتف / Save locally'));
     await tester.pumpAndSettle();
 
@@ -116,4 +122,18 @@ class _MemoryProfileStore extends LocalProfileStore {
     saved = LocalProfile(displayName: profile.displayName.trim());
     return saved;
   }
+}
+
+class _MemoryTelegramSettingsStore extends TelegramSettingsStore {
+  @override
+  Future<TelegramSettings?> read() async => null;
+
+  @override
+  Future<void> save({
+    required String botToken,
+    required String chatId,
+  }) async {}
+
+  @override
+  Future<void> clear() async {}
 }
