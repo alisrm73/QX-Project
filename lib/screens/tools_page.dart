@@ -40,7 +40,7 @@ class _ToolsPageState extends State<ToolsPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('الأدوات / Tools'),
+          title: Text('الأدوات / Tools'),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -72,7 +72,7 @@ class _ToolsPageState extends State<ToolsPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const Text(
+                  Text(
                     'اختر مشروعاً لفحص ملفاته وأدواته / Choose a project to inspect its files and tools',
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
@@ -203,7 +203,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'فحص ملفات المشروع / Project file check',
                             style: TextStyle(fontWeight: FontWeight.w800),
                           ),
@@ -262,7 +262,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'جاهزية معاينة الويب / Web preview readiness',
                             style: TextStyle(fontWeight: FontWeight.w800),
                           ),
@@ -298,7 +298,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                                     )
                                 : null,
                             icon: const Icon(Icons.play_arrow_rounded),
-                            label: const Text('فتح المعاينة / Open preview'),
+                            label: Text('فتح المعاينة / Open preview'),
                           ),
                           if (!hasIndex)
                             const Padding(
@@ -316,7 +316,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                   OutlinedButton.icon(
                     onPressed: _reload,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة الفحص / Run check again'),
+                    label: Text('إعادة الفحص / Run check again'),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
@@ -392,7 +392,7 @@ class _ToolsMessage extends StatelessWidget {
                 const SizedBox(height: 14),
                 FilledButton.tonal(
                   onPressed: action,
-                  child: const Text('إعادة المحاولة / Retry'),
+                  child: Text('إعادة المحاولة / Retry'),
                 ),
               ],
             ],
