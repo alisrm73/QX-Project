@@ -5,9 +5,10 @@ import '../services/telegram_notification_service.dart';
 import '../services/telegram_settings_store.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, this.store});
+  const SettingsPage({super.key, this.store, this.telegramStore});
 
   final LocalProfileStore? store;
+  final TelegramSettingsStore? telegramStore;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -34,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _store = widget.store ?? LocalProfileStore();
-    _telegramStore = TelegramSettingsStore();
+    _telegramStore = widget.telegramStore ?? TelegramSettingsStore();
     _telegramService = TelegramNotificationService(
       settingsStore: _telegramStore,
     );
