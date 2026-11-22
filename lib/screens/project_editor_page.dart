@@ -84,9 +84,9 @@ class _ProjectEditorPageState extends State<ProjectEditorPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('فتح المشروع / Open project'),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Form(
             key: _formKey,
@@ -96,10 +96,10 @@ class _ProjectEditorPageState extends State<ProjectEditorPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF151923),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: .07),
+                      color: Theme.of(context).dividerColor,
                     ),
                   ),
                   child: Column(
@@ -173,7 +173,7 @@ class _ProjectEditorPageState extends State<ProjectEditorPage> {
                         const SizedBox(height: 14),
                         Text(
                           _errorMessage!,
-                          style: const TextStyle(color: Colors.redAccent),
+                          style: TextStyle(color: Colors.redAccent),
                         ),
                       ],
                       const SizedBox(height: 18),
