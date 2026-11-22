@@ -46,7 +46,7 @@ class _ProjectPreviewPageState extends State<ProjectPreviewPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('معاينة المشروع / Project preview'),
+          title: Text('معاينة المشروع / Project preview'),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           actions: [
             IconButton(
@@ -225,7 +225,7 @@ class _PreviewMessage extends StatelessWidget {
                 const SizedBox(height: 14),
                 FilledButton.tonal(
                   onPressed: action,
-                  child: const Text('إعادة المحاولة / Retry'),
+                  child: Text('إعادة المحاولة / Retry'),
                 ),
               ],
             ],
