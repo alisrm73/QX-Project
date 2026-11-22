@@ -15,7 +15,10 @@ ThemeData qxDarkTheme() {
       seedColor: seed,
       brightness: Brightness.dark,
       surface: const Color(0xFF11131B),
-    ).copyWith(onSurfaceVariant: muted),
+    ).copyWith(
+      onSurfaceVariant: muted,
+      surfaceContainerHighest: const Color(0xFF111722),
+    ),
     scaffoldBackgroundColor: background,
     cardColor: card,
     dividerColor: const Color(0x1AFFFFFF),
