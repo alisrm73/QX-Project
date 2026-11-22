@@ -32,7 +32,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('المكتبة / Library')),
+        appBar: AppBar(title: Text('المكتبة / Library')),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<QxProject>>(
           future: _projects,
