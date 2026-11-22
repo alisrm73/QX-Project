@@ -33,7 +33,7 @@ class _LibraryPageState extends State<LibraryPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('المكتبة / Library')),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<QxProject>>(
           future: _projects,
           builder: (context, snapshot) {
@@ -62,7 +62,7 @@ class _LibraryPageState extends State<LibraryPage> {
                   ),
                   for (final project in projects)
                     Card(
-                      color: const Color(0xFF151923),
+                      color: Theme.of(context).cardColor,
                       child: ListTile(
                         leading: const Icon(Icons.folder_copy_outlined, color: Color(0xFF5D9EAA)),
                         title: Text(project.name),
