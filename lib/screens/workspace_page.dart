@@ -42,9 +42,9 @@ class _WorkspacePageState extends State<WorkspacePage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('مساحة العمل / Workspace'),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<QxProject>>(
           future: _projectsFuture,
           builder: (context, snapshot) {
@@ -77,7 +77,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
                   const SizedBox(height: 14),
                   for (final project in projects)
                     Card(
-                      color: const Color(0xFF151923),
+                      color: Theme.of(context).cardColor,
                       child: ListTile(
                         leading: const Icon(
                           Icons.folder_copy_rounded,
@@ -289,7 +289,7 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.project.name),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           actions: [
             IconButton(
               tooltip: 'المهام / Tasks',
@@ -317,7 +317,7 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<WorkspaceEntry>>(
           future: _entriesFuture,
           builder: (context, snapshot) {
@@ -400,7 +400,7 @@ class _WorkspaceMessage extends StatelessWidget {
                 Text(
                   detail!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFF969BAD)),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
               if (action != null) ...[
