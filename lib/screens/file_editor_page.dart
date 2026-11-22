@@ -72,7 +72,7 @@ class _FileEditorPageState extends State<FileEditorPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.fileName),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           actions: [
             TextButton.icon(
               onPressed: _isSaving || !_isDirty ? null : _save,
@@ -88,7 +88,7 @@ class _FileEditorPageState extends State<FileEditorPage> {
             const SizedBox(width: 8),
           ],
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Padding(
           padding: const EdgeInsets.all(12),
           child: DecoratedBox(
@@ -106,7 +106,7 @@ class _FileEditorPageState extends State<FileEditorPage> {
               textAlignVertical: TextAlignVertical.top,
               autocorrect: false,
               enableSuggestions: false,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 14,
                 height: 1.55,
