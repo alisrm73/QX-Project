@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class LocalProfile {
-  const LocalProfile({this.displayName = ''});
+  const LocalProfile({this.displayName = '', this.themeMode = 'dark'});
 
   final String displayName;
+  final String themeMode;
 }
 
 class LocalProfileStore {
@@ -24,16 +25,32 @@ class LocalProfileStore {
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException('Invalid local profile format.');
     }
-    return LocalProfile(displayName: (decoded['displayName'] as String?) ?? '');
+    return LocalProfile(
+      displayName: (decoded['displayName'] as String?) ?? '',
+      themeMode: decoded['themeMode'] == 'light' ? 'light' : 'dark',
+    );
   }
 
   Future<LocalProfile> save(LocalProfile profile) async {
     final file = await _profileFile();
-    final saved = LocalProfile(displayName: profile.displayName.trim());
+    final saved = LocalProfile(
+      displayName: profile.displayName.trim(),
+      themeMode: profile.themeMode == 'light' ? 'light' : 'dark',
+    );
+
+    final Map<String, dynamic> existing = {};
+    if (await file.exists()) {
+      final decoded = jsonDecode(await file.readAsString());
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('Invalid local profile format.');
+      }
+      existing.addAll(decoded);
+    }
+    existing['displayName'] = saved.displayName;
+    existing['themeMode'] = saved.themeMode;
+
     await file.writeAsString(
-      const JsonEncoder.withIndent('  ').convert({
-        'displayName': saved.displayName,
-      }),
+      const JsonEncoder.withIndent('  ').convert(existing),
       flush: true,
     );
     return saved;
