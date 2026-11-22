@@ -50,9 +50,9 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('مشاريعي / My projects'),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<QxProject>>(
           future: _projectsFuture,
           builder: (context, snapshot) {
@@ -95,10 +95,10 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF151923),
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: .07),
+                            color: Theme.of(context).dividerColor,
                           ),
                         ),
                         child: Row(
@@ -123,7 +123,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                                 children: [
                                   Text(
                                     project.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 15,
                                     ),
@@ -131,7 +131,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                                   const SizedBox(height: 4),
                                   Text(
                                     project.type,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Color(0xFFAA9FFF),
                                       fontSize: 12,
                                     ),
@@ -142,8 +142,8 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                                       project.description,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Color(0xFF969BAD),
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -191,15 +191,15 @@ class _MessageState extends StatelessWidget {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
               if (detail != null) ...[
                 const SizedBox(height: 8),
                 Text(
                   detail!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF969BAD),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                   ),
                 ),
