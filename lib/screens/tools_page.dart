@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../services/telegram_settings_store.dart';
+import '../services/telegram_notification_service.dart';
+import '../services/telegram_notification_manager.dart';
+import 'dart:async';
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
 import '../services/workspace_store.dart';
@@ -62,7 +66,8 @@ class _ToolsPageState extends State<ToolsPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   const _ToolsMessage(
-                    message: 'أنشئ مشروعاً أولاً لاستخدام أدوات المشروع / Create a project first to use project tools',
+                    message:
+                        'أنشئ مشروعاً أولاً لاستخدام أدوات المشروع / Create a project first to use project tools',
                   ),
                 ],
               );
@@ -128,6 +133,8 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
       widget.toolRegistry ?? QxToolRegistry.standard();
   QxToolResult? _lastToolResult;
   bool _isRunningTool = false;
+  late final TelegramSettingsStore _telegramSettings;
+  late final TelegramNotificationManager _telegramManager;
 
   Future<void> _runTool(String toolId) async {
     setState(() => _isRunningTool = true);
@@ -138,6 +145,14 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
       );
       if (!mounted) return;
       setState(() => _lastToolResult = result);
+      if (result.success) {
+        unawaited(
+          _telegramManager.notifyToolExecuted(
+            eventId:
+                'tool:${widget.project.id}:$toolId:${DateTime.now().microsecondsSinceEpoch}',
+          ),
+        );
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -145,7 +160,8 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
           toolId: toolId,
           success: false,
           messageAr: 'فشل تشغيل الأداة. تحقق من مساحة العمل وحاول مجدداً.',
-          messageEn: 'Tool execution failed. Check the workspace and try again.',
+          messageEn:
+              'Tool execution failed. Check the workspace and try again.',
         );
       });
     } finally {
@@ -156,6 +172,13 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
   @override
   void initState() {
     super.initState();
+    _telegramSettings = TelegramSettingsStore();
+    _telegramManager = TelegramNotificationManager(
+      settingsStore: _telegramSettings,
+      notificationService: TelegramNotificationService(
+        settingsStore: _telegramSettings,
+      ),
+    );
     _entriesFuture = widget.store.listEntries(widget.project);
   }
 
@@ -179,14 +202,16 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
             }
             if (snapshot.hasError) {
               return _ToolsMessage(
-                message: 'تعذّر فحص ملفات المشروع / Could not inspect project files',
+                message:
+                    'تعذّر فحص ملفات المشروع / Could not inspect project files',
                 action: _reload,
               );
             }
 
             final entries = snapshot.data ?? const <WorkspaceEntry>[];
             final files = entries.where((entry) => !entry.isDirectory).toList();
-            final folders = entries.where((entry) => entry.isDirectory).toList();
+            final folders =
+                entries.where((entry) => entry.isDirectory).toList();
             final hasIndex = files.any((entry) => entry.name == 'index.html');
             final hasCss = files.any((entry) => entry.name == 'style.css');
             final hasJs = files.any((entry) => entry.name == 'script.js');
@@ -208,8 +233,12 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                             style: TextStyle(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 10),
-                          Text('الملفات: ' + files.length.toString() + ' / Files'),
-                          Text('المجلدات: ' + folders.length.toString() + ' / Folders'),
+                          Text('الملفات: ' +
+                              files.length.toString() +
+                              ' / Files'),
+                          Text('المجلدات: ' +
+                              folders.length.toString() +
+                              ' / Folders'),
                           const SizedBox(height: 8),
                           Text(
                             entries.isEmpty
@@ -231,7 +260,8 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                         title: Text('${tool.nameAr} / ${tool.nameEn}'),
                         subtitle: Text(tool.descriptionAr),
                         trailing: FilledButton(
-                          onPressed: _isRunningTool ? null : () => _runTool(tool.id),
+                          onPressed:
+                              _isRunningTool ? null : () => _runTool(tool.id),
                           child: Text(_isRunningTool
                               ? 'جارٍ التنفيذ / Running'
                               : 'تشغيل / Run'),

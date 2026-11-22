@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../services/telegram_settings_store.dart';
+import '../services/telegram_notification_service.dart';
+import '../services/telegram_notification_manager.dart';
+import 'dart:async';
 import '../models/qx_project.dart';
 import '../services/project_store.dart';
 import '../services/workspace_store.dart';
@@ -18,6 +22,8 @@ class QxCorePage extends StatefulWidget {
 class _QxCorePageState extends State<QxCorePage> {
   late final ProjectStore _store;
   late final WorkspaceStore _workspaceStore;
+  late final TelegramSettingsStore _telegramSettings;
+  late final TelegramNotificationManager _telegramManager;
   late Future<List<({QxProject project, WorkspaceAnalysis analysis})>> _report;
 
   @override
@@ -25,14 +31,28 @@ class _QxCorePageState extends State<QxCorePage> {
     super.initState();
     _store = widget.store ?? ProjectStore();
     _workspaceStore = widget.workspaceStore ?? WorkspaceStore();
+    _telegramSettings = TelegramSettingsStore();
+    _telegramManager = TelegramNotificationManager(
+      settingsStore: _telegramSettings,
+      notificationService: TelegramNotificationService(
+        settingsStore: _telegramSettings,
+      ),
+    );
     _report = _loadReport();
   }
 
-  Future<List<({QxProject project, WorkspaceAnalysis analysis})>> _loadReport() async {
+  Future<List<({QxProject project, WorkspaceAnalysis analysis})>>
+      _loadReport() async {
     final projects = await _store.getProjects();
     final results = <({QxProject project, WorkspaceAnalysis analysis})>[];
     for (final project in projects) {
-      results.add((project: project, analysis: await _workspaceStore.analyzeWorkspace(project)));
+      final analysis = await _workspaceStore.analyzeWorkspace(project);
+      results.add((project: project, analysis: analysis));
+      unawaited(
+        _telegramManager.notifyAnalysisCompleted(
+          eventId: 'analysis:${project.id}',
+        ),
+      );
     }
     return results;
   }
@@ -55,22 +75,28 @@ class _QxCorePageState extends State<QxCorePage> {
           ],
         ),
         backgroundColor: const Color(0xFF0B0D13),
-        body: FutureBuilder<List<({QxProject project, WorkspaceAnalysis analysis})>>(
+        body: FutureBuilder<
+            List<({QxProject project, WorkspaceAnalysis analysis})>>(
           future: _report,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return const Center(child: Text('تعذّر إنشاء تقرير المشاريع / Could not analyze projects'));
+              return const Center(
+                  child: Text(
+                      'تعذّر إنشاء تقرير المشاريع / Could not analyze projects'));
             }
             final reports = snapshot.data ?? const [];
-            final totalFiles = reports.fold<int>(0, (sum, item) => sum + item.analysis.fileCount);
-            final totalFolders = reports.fold<int>(0, (sum, item) => sum + item.analysis.directoryCount);
+            final totalFiles = reports.fold<int>(
+                0, (sum, item) => sum + item.analysis.fileCount);
+            final totalFolders = reports.fold<int>(
+                0, (sum, item) => sum + item.analysis.directoryCount);
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                const Icon(Icons.hub_outlined, size: 54, color: Color(0xFF25B99A)),
+                const Icon(Icons.hub_outlined,
+                    size: 54, color: Color(0xFF25B99A)),
                 const SizedBox(height: 12),
                 const Text(
                   'مركز إدارة وتحليل المشاريع المحلي / Local project analysis hub',
@@ -86,11 +112,18 @@ class _QxCorePageState extends State<QxCorePage> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Expanded(child: _MetricCard(label: 'المشاريع / Projects', value: reports.length)),
+                    Expanded(
+                        child: _MetricCard(
+                            label: 'المشاريع / Projects',
+                            value: reports.length)),
                     const SizedBox(width: 8),
-                    Expanded(child: _MetricCard(label: 'الملفات / Files', value: totalFiles)),
+                    Expanded(
+                        child: _MetricCard(
+                            label: 'الملفات / Files', value: totalFiles)),
                     const SizedBox(width: 8),
-                    Expanded(child: _MetricCard(label: 'المجلدات / Folders', value: totalFolders)),
+                    Expanded(
+                        child: _MetricCard(
+                            label: 'المجلدات / Folders', value: totalFolders)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -99,7 +132,8 @@ class _QxCorePageState extends State<QxCorePage> {
                     color: Color(0xFF151923),
                     child: Padding(
                       padding: EdgeInsets.all(16),
-                      child: Text('لا توجد مشاريع لتحليلها حالياً / No projects to analyze yet'),
+                      child: Text(
+                          'لا توجد مشاريع لتحليلها حالياً / No projects to analyze yet'),
                     ),
                   ),
                 for (final report in reports)
@@ -110,17 +144,28 @@ class _QxCorePageState extends State<QxCorePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(report.project.name, style: const TextStyle(fontWeight: FontWeight.w800)),
+                          Text(report.project.name,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w800)),
                           const SizedBox(height: 8),
-                          Text('${report.analysis.fileCount} ملفات · ${report.analysis.directoryCount} مجلدات · ${report.analysis.totalBytes} bytes'),
+                          Text(
+                              '${report.analysis.fileCount} ملفات · ${report.analysis.directoryCount} مجلدات · ${report.analysis.totalBytes} bytes'),
                           const SizedBox(height: 8),
-                          _CheckLine(label: 'index.html', present: report.analysis.hasIndexHtml),
-                          _CheckLine(label: 'style.css', present: report.analysis.hasStyleCss),
-                          _CheckLine(label: 'script.js', present: report.analysis.hasScriptJs),
+                          _CheckLine(
+                              label: 'index.html',
+                              present: report.analysis.hasIndexHtml),
+                          _CheckLine(
+                              label: 'style.css',
+                              present: report.analysis.hasStyleCss),
+                          _CheckLine(
+                              label: 'script.js',
+                              present: report.analysis.hasScriptJs),
                           if (report.analysis.extensionCounts.isNotEmpty) ...[
                             const SizedBox(height: 8),
-                            Text('أنواع الملفات / File types: ${report.analysis.extensionCounts.entries.map((e) => '${e.key}: ${e.value}').join(' · ')}',
-                                style: const TextStyle(color: Color(0xFF9DA2B4))),
+                            Text(
+                                'أنواع الملفات / File types: ${report.analysis.extensionCounts.entries.map((e) => '${e.key}: ${e.value}').join(' · ')}',
+                                style:
+                                    const TextStyle(color: Color(0xFF9DA2B4))),
                           ],
                         ],
                       ),
@@ -153,9 +198,13 @@ class _MetricCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(value.toString(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+              Text(value.toString(),
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
+              Text(label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 11)),
             ],
           ),
         ),
@@ -170,8 +219,13 @@ class _CheckLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Icon(present ? Icons.check_circle_outline : Icons.radio_button_unchecked,
-              size: 17, color: present ? const Color(0xFF25B99A) : const Color(0xFF969BAD)),
+          Icon(
+              present
+                  ? Icons.check_circle_outline
+                  : Icons.radio_button_unchecked,
+              size: 17,
+              color:
+                  present ? const Color(0xFF25B99A) : const Color(0xFF969BAD)),
           const SizedBox(width: 7),
           Text(label),
           const Spacer(),
