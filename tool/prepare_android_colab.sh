@@ -20,7 +20,12 @@ if ! command -v flutter >/dev/null 2>&1; then
 fi
 
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/qx-android-platform.XXXXXX")"
+ANDROID_CREATED=0
 cleanup() {
+  status=$?
+  if [[ $status -ne 0 && "$ANDROID_CREATED" -eq 1 ]]; then
+    rm -rf "$ROOT_DIR/android"
+  fi
   rm -rf "$TMP_DIR"
 }
 trap cleanup EXIT
@@ -33,12 +38,12 @@ flutter create \
   "$TMP_DIR/android_shell"
 
 cp -R "$TMP_DIR/android_shell/android" "$ROOT_DIR/android"
+ANDROID_CREATED=1
 
 echo "Applying Android secure-storage and backup configuration..."
 python3 <<'PY'
 from pathlib import Path
 import re
-import sys
 import xml.etree.ElementTree as ET
 
 android_dir = Path("android")
@@ -69,7 +74,7 @@ if gradle_path is None:
 
 gradle_text = gradle_path.read_text(encoding="utf-8")
 min_sdk_pattern = re.compile(
-    r"^(\s*minSdk(?:Version)?\s*(?:=\s*)?)(?:flutter\.minSdkVersion|\d+)(\s*(?://.*)?)$",
+    r"^([ \t]*minSdk(?:Version)?[ \t]*(?:=[ \t]*)?)(?:flutter\.minSdkVersion|\d+)([ \t]*(?://.*)?)$",
     re.MULTILINE,
 )
 gradle_text, replacements = min_sdk_pattern.subn(r"\g<1>23\g<2>", gradle_text)
@@ -119,13 +124,13 @@ ET.parse(manifest_path)
 ET.parse(backup_rules)
 ET.parse(data_extraction_rules)
 
-if 'allowBackup", "true"' not in str(application.attrib.items()):
+if application.get(f"{{{android_ns}}}allowBackup") != "true":
     raise SystemExit("ERROR: Android backup setting verification failed.")
 if "@xml/backup_rules" not in application.attrib.values():
     raise SystemExit("ERROR: Legacy backup rules were not linked in the manifest.")
 if "@xml/data_extraction_rules" not in application.attrib.values():
     raise SystemExit("ERROR: Android 12+ backup rules were not linked in the manifest.")
-if not re.search(r"^\s*minSdk(?:Version)?\s*(?:=\s*)?23\b", gradle_text, re.MULTILINE):
+if not re.search(r"^[ \t]*minSdk(?:Version)?[ \t]*(?:=[ \t]*)?23\b", gradle_text, re.MULTILINE):
     raise SystemExit("ERROR: Android minSdk verification failed.")
 
 print("Android platform generated and secure-storage backup rules verified.")
