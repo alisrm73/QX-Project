@@ -41,9 +41,9 @@ class _ToolsPageState extends State<ToolsPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('الأدوات / Tools'),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<QxProject>>(
           future: _projectsFuture,
           builder: (context, snapshot) {
@@ -79,7 +79,7 @@ class _ToolsPageState extends State<ToolsPage> {
                   const SizedBox(height: 12),
                   for (final project in projects)
                     Card(
-                      color: const Color(0xFF151923),
+                      color: Theme.of(context).cardColor,
                       child: ListTile(
                         leading: const Icon(
                           Icons.build_circle_outlined,
@@ -168,9 +168,9 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text('أدوات المشروع / Project tools · ' + widget.project.name),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<WorkspaceEntry>>(
           future: _entriesFuture,
           builder: (context, snapshot) {
@@ -197,7 +197,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   Card(
-                    color: const Color(0xFF151923),
+                    color: Theme.of(context).cardColor,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -215,7 +215,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                             entries.isEmpty
                                 ? 'مساحة العمل فارغة / Workspace is empty'
                                 : 'تمت قراءة عناصر مساحة العمل / Workspace entries were read',
-                            style: const TextStyle(color: Color(0xFF9DA2B4)),
+                            style: TextStyle(color: Color(0xFF9DA2B4)),
                           ),
                         ],
                       ),
@@ -240,7 +240,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                     ),
                   if (_lastToolResult != null)
                     Card(
-                      color: const Color(0xFF151923),
+                      color: Theme.of(context).cardColor,
                       child: ListTile(
                         leading: Icon(
                           _lastToolResult!.success
@@ -256,7 +256,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                     ),
                   const SizedBox(height: 12),
                   Card(
-                    color: const Color(0xFF151923),
+                    color: Theme.of(context).cardColor,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -361,7 +361,7 @@ class _ToolStatus extends StatelessWidget {
             Expanded(child: Text(label)),
             Text(
               ready ? readyText : missingText,
-              style: const TextStyle(color: Color(0xFF9DA2B4), fontSize: 12),
+              style: TextStyle(color: Color(0xFF9DA2B4), fontSize: 12),
             ),
           ],
         ),
