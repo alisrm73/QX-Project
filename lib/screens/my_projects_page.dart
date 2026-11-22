@@ -49,7 +49,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('مشاريعي / My projects'),
+          title: Text('مشاريعي / My projects'),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
