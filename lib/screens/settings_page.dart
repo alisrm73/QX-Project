@@ -176,6 +176,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: _saving ? null : _save,
+                    style: Theme.of(context).brightness == Brightness.light
+                        ? FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFF9E9A9),
+                            foregroundColor: const Color(0xFF282633),
+                          )
+                        : null,
                     icon: const Icon(Icons.save_outlined),
                     label: Text(_saving ? 'جارٍ الحفظ / Saving' : 'حفظ على الهاتف / Save locally'),
                   ),
