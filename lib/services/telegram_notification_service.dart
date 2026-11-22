@@ -51,8 +51,8 @@ class TelegramNotificationService {
     required TelegramSettingsStore settingsStore,
     TelegramRequestSender? requestSender,
     this.timeout = const Duration(seconds: 10),
-  })  : _settingsStore = settingsStore,
-        _requestSender = requestSender ?? _sendHttpRequest {
+  }) : _settingsStore = settingsStore {
+    _requestSender = requestSender ?? _sendHttpRequest;
     if (timeout <= Duration.zero) {
       throw ArgumentError.value(timeout, 'timeout', 'Must be positive.');
     }
@@ -61,7 +61,7 @@ class TelegramNotificationService {
   static const int _maxResponseBytes = 64 * 1024;
 
   final TelegramSettingsStore _settingsStore;
-  final TelegramRequestSender _requestSender;
+  late final TelegramRequestSender _requestSender;
   final Duration timeout;
 
   /// Attempts to send a single plain-text message.
