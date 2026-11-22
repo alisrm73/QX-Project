@@ -83,7 +83,7 @@ class _FileEditorPageState extends State<FileEditorPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.save_rounded),
-              label: const Text('حفظ / Save'),
+              label: Text('حفظ / Save'),
             ),
             const SizedBox(width: 8),
           ],
