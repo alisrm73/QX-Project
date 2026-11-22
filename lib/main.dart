@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'services/project_store.dart';
+import 'services/local_profile_store.dart';
+import 'theme/qx_theme.dart';
 import 'screens/my_projects_page.dart';
 import 'screens/workspace_page.dart';
 import 'screens/tools_page.dart';
@@ -11,32 +13,46 @@ import 'screens/search_page.dart';
 
 void main() => runApp(const QxStudioApp());
 
-class QxStudioApp extends StatelessWidget {
+class QxStudioApp extends StatefulWidget {
   const QxStudioApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const seed = Color(0xFF7C6CFF);
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'QX Studio',
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seed,
-          brightness: Brightness.dark,
-          surface: const Color(0xFF11131B),
-        ),
-        scaffoldBackgroundColor: const Color(0xFF0B0D13),
-        fontFamily: 'Roboto',
-      ),
-      home: const Directionality(
-        textDirection: TextDirection.rtl,
-        child: QxHomePage(),
-      ),
-    );
+  State<QxStudioApp> createState() => _QxStudioAppState();
+}
+
+class _QxStudioAppState extends State<QxStudioApp> {
+  @override
+  void initState() {
+    super.initState();
+    _restoreSavedTheme();
   }
+
+  Future<void> _restoreSavedTheme() async {
+    try {
+      final profile = await LocalProfileStore().load();
+      qxThemeMode.value =
+          profile.themeMode == 'light' ? ThemeMode.light : ThemeMode.dark;
+    } catch (_) {
+      // Keep the safe dark default if the local profile cannot be read.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<ThemeMode>(
+        valueListenable: qxThemeMode,
+        builder: (context, mode, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'QX Studio',
+          theme: qxLightTheme(),
+          darkTheme: qxDarkTheme(),
+          themeMode: mode,
+          home: const Directionality(
+            textDirection: TextDirection.rtl,
+            child: QxHomePage(),
+          ),
+        ),
+      );
 }
 
 class QxHomePage extends StatelessWidget {
@@ -306,11 +322,11 @@ class _TopBar extends StatelessWidget {
               child: const Icon(Icons.bubble_chart_rounded, color: Colors.white, size: 25),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('QX Studio', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: .2)),
-                Text('حوّل أفكارك إلى واقع', style: TextStyle(color: Color(0xFF9296A8), fontSize: 10)),
+                Text('حوّل أفكارك إلى واقع', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10)),
               ],
             ),
             const Spacer(),
@@ -336,7 +352,7 @@ class _WelcomePanel extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-            colors: [Color(0xFF29234F), Color(0xFF171A2B), Color(0xFF151923)],
+            colors: [Color(0xFF29234F), Color(0xFF171A2B), Theme.of(context).cardColor],
           ),
           border: Border.all(color: const Color(0xFF7165D8).withValues(alpha: .28)),
         ),
@@ -361,7 +377,7 @@ class _WelcomePanel extends StatelessWidget {
                 backgroundColor: const Color(0xFF7566F2),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
@@ -385,9 +401,9 @@ class _FeatureCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF151923),
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.white.withValues(alpha: .065)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,9 +415,9 @@ class _FeatureCard extends StatelessWidget {
                   child: Icon(data.icon, color: data.color, size: 21),
                 ),
                 const Spacer(),
-                Text(data.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                Text(data.title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                Text(data.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF969BAD), fontSize: 10)),
+                Text(data.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10)),
               ],
             ),
           ),
@@ -430,9 +446,9 @@ class _SideRail extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(0, 10, 8, 10),
         padding: const EdgeInsets.symmetric(vertical: 13),
         decoration: BoxDecoration(
-          color: const Color(0xFF151823),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.white.withValues(alpha: .06)),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Column(
           children: [
@@ -501,7 +517,7 @@ class _RoundAction extends StatelessWidget {
           child: Container(
             width: 38,
             height: 38,
-            decoration: BoxDecoration(color: const Color(0xFF171A25), borderRadius: BorderRadius.circular(13), border: Border.all(color: Colors.white.withValues(alpha: .06))),
+            decoration: BoxDecoration(color: const Color(0xFF171A25), borderRadius: BorderRadius.circular(13), border: Border.all(color: Theme.of(context).dividerColor)),
             child: Icon(icon, color: const Color(0xFFB8BACC), size: 19),
           ),
         ),
