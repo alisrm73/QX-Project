@@ -96,7 +96,7 @@ class QxHomePage extends StatelessWidget {
                     sliver: SliverToBoxAdapter(
                       child: Row(
                         children: [
-                          const Text('مساحتك في QX / Your QX space', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                          Text('مساحتك في QX / Your QX space', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                           const Spacer(),
                           Text('عرض الكل / View all', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, fontWeight: FontWeight.w600)),
                         ],
@@ -182,7 +182,7 @@ Future<void> _showCreateProjectDialog(BuildContext context) async {
       barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('إنشاء مشروع جديد / New project'),
+          title: Text('إنشاء مشروع جديد / New project'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -237,7 +237,7 @@ Future<void> _showCreateProjectDialog(BuildContext context) async {
               onPressed: isSaving
                   ? null
                   : () => Navigator.of(dialogContext).pop(),
-              child: const Text('إلغاء / Cancel'),
+              child: Text('إلغاء / Cancel'),
             ),
             FilledButton(
               onPressed: isSaving
@@ -259,7 +259,7 @@ Future<void> _showCreateProjectDialog(BuildContext context) async {
                         ),
                       );
                     },
-              child: const Text('إنشاء وحفظ / Create & save'),
+              child: Text('إنشاء وحفظ / Create & save'),
             ),
           ],
         ),
@@ -352,7 +352,7 @@ class _WelcomePanel extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-            colors: [Color(0xFF29234F), Color(0xFF171A2B), Theme.of(context).cardColor],
+            colors: [Color(0xFF29234F), Color(0xFF171A2B), Color(0xFF151923)],
           ),
           border: Border.all(color: const Color(0xFF7165D8).withValues(alpha: .28)),
         ),
@@ -362,17 +362,17 @@ class _WelcomePanel extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(color: const Color(0xFF796AF4).withValues(alpha: .18), borderRadius: BorderRadius.circular(20)),
-              child: const Text('من الفكرة إلى الإنجاز / From idea to delivery', style: TextStyle(color: Color(0xFFC2BAFF), fontSize: 10, fontWeight: FontWeight.w700)),
+              child: Text('من الفكرة إلى الإنجاز / From idea to delivery', style: TextStyle(color: Color(0xFFC2BAFF), fontSize: 10, fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: 13),
-            const Text('أهلاً بك في QX Studio / Welcome to QX Studio', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
+            Text('أهلاً بك في QX Studio / Welcome to QX Studio', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            const Text('أنشئ مشاريعك ونظّم أفكارك / Create and manage projects in one place.', style: TextStyle(color: Color(0xFFB4B7C7), fontSize: 12, height: 1.6)),
+            Text('أنشئ مشاريعك ونظّم أفكارك / Create and manage projects in one place.', style: TextStyle(color: Color(0xFFB4B7C7), fontSize: 12, height: 1.6)),
             const SizedBox(height: 15),
             FilledButton.icon(
               onPressed: onCreateProject,
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('ابدأ مشروعاً جديداً / Create a new project'),
+              label: Text('ابدأ مشروعاً جديداً / Create a new project'),
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF7566F2),
                 foregroundColor: Colors.white,
@@ -496,7 +496,7 @@ class _RailButton extends StatelessWidget {
               color: selected ? const Color(0xFF7566F2).withValues(alpha: .2) : Colors.transparent,
               borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(icon, color: selected ? const Color(0xFFAA9FFF) : const Color(0xFF85899B), size: 21),
+            child: Icon(icon, color: selected ? const Color(0xFFAA9FFF) : Theme.of(context).colorScheme.onSurfaceVariant, size: 21),
           ),
         ),
       );
@@ -517,8 +517,8 @@ class _RoundAction extends StatelessWidget {
           child: Container(
             width: 38,
             height: 38,
-            decoration: BoxDecoration(color: const Color(0xFF171A25), borderRadius: BorderRadius.circular(13), border: Border.all(color: Theme.of(context).dividerColor)),
-            child: Icon(icon, color: const Color(0xFFB8BACC), size: 19),
+            decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(13), border: Border.all(color: Theme.of(context).dividerColor)),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 19),
           ),
         ),
       );
