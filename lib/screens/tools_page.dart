@@ -215,7 +215,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                             entries.isEmpty
                                 ? 'مساحة العمل فارغة / Workspace is empty'
                                 : 'تمت قراءة عناصر مساحة العمل / Workspace entries were read',
-                            style: TextStyle(color: Color(0xFF9DA2B4)),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -305,7 +305,7 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                               padding: EdgeInsets.only(top: 8),
                               child: Text(
                                 'أنشئ index.html لتفعيل المعاينة / Create index.html to enable preview',
-                                style: TextStyle(color: Color(0xFF9DA2B4)),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                             ),
                         ],
@@ -354,14 +354,14 @@ class _ToolStatus extends StatelessWidget {
           children: [
             Icon(
               ready ? Icons.check_circle_outline : Icons.info_outline,
-              color: ready ? const Color(0xFF55C99A) : const Color(0xFF9DA2B4),
+              color: ready ? const Color(0xFF55C99A) : Theme.of(context).colorScheme.onSurfaceVariant,
               size: 18,
             ),
             const SizedBox(width: 8),
             Expanded(child: Text(label)),
             Text(
               ready ? readyText : missingText,
-              style: TextStyle(color: Color(0xFF9DA2B4), fontSize: 12),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
             ),
           ],
         ),
