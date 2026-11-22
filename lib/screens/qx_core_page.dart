@@ -54,7 +54,7 @@ class _QxCorePageState extends State<QxCorePage> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<List<({QxProject project, WorkspaceAnalysis analysis})>>(
           future: _report,
           builder: (context, snapshot) {
@@ -95,8 +95,8 @@ class _QxCorePageState extends State<QxCorePage> {
                 ),
                 const SizedBox(height: 16),
                 if (reports.isEmpty)
-                  const Card(
-                    color: Color(0xFF151923),
+                  Card(
+                    color: Theme.of(context).cardColor,
                     child: Padding(
                       padding: EdgeInsets.all(16),
                       child: Text('لا توجد مشاريع لتحليلها حالياً / No projects to analyze yet'),
@@ -104,13 +104,13 @@ class _QxCorePageState extends State<QxCorePage> {
                   ),
                 for (final report in reports)
                   Card(
-                    color: const Color(0xFF151923),
+                    color: Theme.of(context).cardColor,
                     child: Padding(
                       padding: const EdgeInsets.all(14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(report.project.name, style: const TextStyle(fontWeight: FontWeight.w800)),
+                          Text(report.project.name, style: TextStyle(fontWeight: FontWeight.w800)),
                           const SizedBox(height: 8),
                           Text('${report.analysis.fileCount} ملفات · ${report.analysis.directoryCount} مجلدات · ${report.analysis.totalBytes} bytes'),
                           const SizedBox(height: 8),
@@ -120,7 +120,7 @@ class _QxCorePageState extends State<QxCorePage> {
                           if (report.analysis.extensionCounts.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text('أنواع الملفات / File types: ${report.analysis.extensionCounts.entries.map((e) => '${e.key}: ${e.value}').join(' · ')}',
-                                style: const TextStyle(color: Color(0xFF9DA2B4))),
+                                style: TextStyle(color: Color(0xFF9DA2B4))),
                           ],
                         ],
                       ),
@@ -148,14 +148,14 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        color: const Color(0xFF151923),
+        color: Theme.of(context).cardColor,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(value.toString(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+              Text(value.toString(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
+              Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 11)),
             ],
           ),
         ),
@@ -171,12 +171,12 @@ class _CheckLine extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         children: [
           Icon(present ? Icons.check_circle_outline : Icons.radio_button_unchecked,
-              size: 17, color: present ? const Color(0xFF25B99A) : const Color(0xFF969BAD)),
+              size: 17, color: present ? const Color(0xFF25B99A) : Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(width: 7),
           Text(label),
           const Spacer(),
           Text(present ? 'موجود / Found' : 'غير موجود / Missing',
-              style: const TextStyle(color: Color(0xFF9DA2B4), fontSize: 12)),
+              style: TextStyle(color: Color(0xFF9DA2B4), fontSize: 12)),
         ],
       );
 }
