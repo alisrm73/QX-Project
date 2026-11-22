@@ -33,7 +33,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('البحث / Search')),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Column(
           children: [
             Padding(
