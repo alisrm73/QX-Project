@@ -45,7 +45,7 @@ class _QxCorePageState extends State<QxCorePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('QX Core'),
+          title: Text('QX Core'),
           actions: [
             IconButton(
               tooltip: 'تحديث التقرير / Refresh report',
@@ -72,13 +72,13 @@ class _QxCorePageState extends State<QxCorePage> {
               children: [
                 const Icon(Icons.hub_outlined, size: 54, color: Color(0xFF25B99A)),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'مركز إدارة وتحليل المشاريع المحلي / Local project analysis hub',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'يعرض هذا التقرير بنية الملفات المحلية ومؤشرات الجاهزية الأساسية. لا يتضمن تحليلاً بالذكاء الاصطناعي أو اتصالاً بالإنترنت.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Color(0xFF9DA2B4)),
@@ -132,7 +132,7 @@ class _QxCorePageState extends State<QxCorePage> {
                     MaterialPageRoute<void>(builder: (_) => const ToolsPage()),
                   ),
                   icon: const Icon(Icons.build_circle_outlined),
-                  label: const Text('فتح أدوات الفحص / Open project tools'),
+                  label: Text('فتح أدوات الفحص / Open project tools'),
                 ),
               ],
             );
