@@ -47,7 +47,7 @@ class _ProjectPreviewPageState extends State<ProjectPreviewPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('معاينة المشروع / Project preview'),
-          backgroundColor: const Color(0xFF0B0D13),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           actions: [
             IconButton(
               tooltip: 'تحديث / Refresh',
@@ -56,7 +56,7 @@ class _ProjectPreviewPageState extends State<ProjectPreviewPage> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: FutureBuilder<WorkspacePreviewContent>(
           future: _contentFuture,
           builder: (context, snapshot) {
@@ -218,7 +218,7 @@ class _PreviewMessage extends StatelessWidget {
                 Text(
                   detail!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFF969BAD)),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
               if (action != null) ...[
