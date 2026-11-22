@@ -37,7 +37,9 @@ void main() {
       Uri uri, {
       required Map<String, String> headers,
       required String body,
+      required void Function(void Function()) registerCancellation,
     }) async {
+      registerCancellation(() {});
       calls++;
       return const TelegramHttpResponse(
         statusCode: 200,
@@ -68,7 +70,9 @@ void main() {
       Uri uri, {
       required Map<String, String> headers,
       required String body,
+      required void Function(void Function()) registerCancellation,
     }) {
+      registerCancellation(() {});
       calls++;
       return completer.future;
     }
@@ -102,7 +106,9 @@ void main() {
       Uri uri, {
       required Map<String, String> headers,
       required String body,
+      required void Function(void Function()) registerCancellation,
     }) async {
+      registerCancellation(() {});
       calls++;
       if (calls == 1) {
         return const TelegramHttpResponse(
@@ -137,7 +143,9 @@ void main() {
       Uri uri, {
       required Map<String, String> headers,
       required String body,
+      required void Function(void Function()) registerCancellation,
     }) async {
+      registerCancellation(() {});
       calls++;
       return const TelegramHttpResponse(
         statusCode: 200,
