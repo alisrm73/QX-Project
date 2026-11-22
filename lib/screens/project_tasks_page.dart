@@ -122,7 +122,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addTask,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('مهمة جديدة / New task'),
+        label: Text('مهمة جديدة / New task'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -227,7 +227,7 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('مهمة جديدة / New task'),
+        title: Text('مهمة جديدة / New task'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -257,14 +257,14 @@ class _AddTaskDialogState extends State<_AddTaskDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('إلغاء / Cancel'),
+            child: Text('إلغاء / Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop((
               _titleController.text,
               _notesController.text,
             )),
-            child: const Text('إضافة / Add'),
+            child: Text('إضافة / Add'),
           ),
         ],
       );
@@ -299,7 +299,7 @@ class _TaskMessage extends StatelessWidget {
                 const SizedBox(height: 14),
                 FilledButton.tonal(
                   onPressed: action,
-                  child: const Text('إعادة المحاولة / Retry'),
+                  child: Text('إعادة المحاولة / Retry'),
                 ),
               ],
             ],
