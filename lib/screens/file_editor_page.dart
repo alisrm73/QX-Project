@@ -93,9 +93,9 @@ class _FileEditorPageState extends State<FileEditorPage> {
           padding: const EdgeInsets.all(12),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: const Color(0xFF111722),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white12),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: TextField(
               controller: _controller,
