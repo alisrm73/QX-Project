@@ -116,7 +116,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Text(
                     'لا يوجد تسجيل دخول أو كلمة سر أو اتصال بخادم. تُحفظ البيانات على هذا الهاتف فقط.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF9DA2B4)),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 24),
                   Card(
