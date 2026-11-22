@@ -301,8 +301,8 @@ class _ProjectToolsPageState extends State<ProjectToolsPage> {
                             label: Text('فتح المعاينة / Open preview'),
                           ),
                           if (!hasIndex)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
                               child: Text(
                                 'أنشئ index.html لتفعيل المعاينة / Create index.html to enable preview',
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
