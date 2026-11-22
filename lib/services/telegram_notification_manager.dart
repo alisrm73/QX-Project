@@ -12,8 +12,8 @@ class TelegramNotificationManager {
   final TelegramSettingsStore _settingsStore;
   final TelegramNotificationService _notificationService;
 
-  final Set<String> _deliveredEventIds = <String>{};
-  final Map<String, Future<TelegramNotificationResult>> _inFlight =
+  static final Set<String> _deliveredEventIds = <String>{};
+  static final Map<String, Future<TelegramNotificationResult>> _inFlight =
       <String, Future<TelegramNotificationResult>>{};
 
   Future<TelegramNotificationResult> notifyProjectCreated({
