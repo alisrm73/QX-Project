@@ -41,7 +41,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('مساحة العمل / Workspace'),
+          title: Text('مساحة العمل / Workspace'),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -70,7 +70,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const Text(
+                  Text(
                     'اختر مشروعاً للعمل عليه / Choose a project to work on',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                   ),
@@ -138,7 +138,7 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
       final fileName = await showDialog<String>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('ملف جديد / New file'),
+          title: Text('ملف جديد / New file'),
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -154,12 +154,12 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('إلغاء / Cancel'),
+              child: Text('إلغاء / Cancel'),
             ),
             FilledButton(
               onPressed: () =>
                   Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: const Text('إنشاء / Create'),
+              child: Text('إنشاء / Create'),
             ),
           ],
         ),
@@ -204,7 +204,7 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
       final folderPath = await showDialog<String>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('مجلد جديد / New folder'),
+          title: Text('مجلد جديد / New folder'),
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -219,11 +219,11 @@ class _ProjectWorkspacePageState extends State<ProjectWorkspacePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('إلغاء / Cancel'),
+              child: Text('إلغاء / Cancel'),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: const Text('إنشاء / Create'),
+              child: Text('إنشاء / Create'),
             ),
           ],
         ),
@@ -407,7 +407,7 @@ class _WorkspaceMessage extends StatelessWidget {
                 const SizedBox(height: 14),
                 FilledButton.tonal(
                   onPressed: action,
-                  child: const Text('إعادة المحاولة / Retry'),
+                  child: Text('إعادة المحاولة / Retry'),
                 ),
               ],
             ],
