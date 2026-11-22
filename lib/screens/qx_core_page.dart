@@ -81,7 +81,7 @@ class _QxCorePageState extends State<QxCorePage> {
                 Text(
                   'يعرض هذا التقرير بنية الملفات المحلية ومؤشرات الجاهزية الأساسية. لا يتضمن تحليلاً بالذكاء الاصطناعي أو اتصالاً بالإنترنت.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF9DA2B4)),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -120,7 +120,7 @@ class _QxCorePageState extends State<QxCorePage> {
                           if (report.analysis.extensionCounts.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text('أنواع الملفات / File types: ${report.analysis.extensionCounts.entries.map((e) => '${e.key}: ${e.value}').join(' · ')}',
-                                style: TextStyle(color: Color(0xFF9DA2B4))),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           ],
                         ],
                       ),
@@ -176,7 +176,7 @@ class _CheckLine extends StatelessWidget {
           Text(label),
           const Spacer(),
           Text(present ? 'موجود / Found' : 'غير موجود / Missing',
-              style: TextStyle(color: Color(0xFF9DA2B4), fontSize: 12)),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
         ],
       );
 }
