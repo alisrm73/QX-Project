@@ -109,7 +109,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('المهام / Tasks · ${widget.project.name}'),
-        backgroundColor: const Color(0xFF0B0D13),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         actions: [
           IconButton(
             tooltip: 'إضافة مهمة / Add task',
@@ -118,7 +118,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF0B0D13),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addTask,
         icon: const Icon(Icons.add_rounded),
@@ -142,7 +142,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
                         children: [
                           Card(
-                            color: const Color(0xFF151923),
+                            color: Theme.of(context).cardColor,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Column(
@@ -150,7 +150,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
                                 children: [
                                   Text(
                                     'التقدم / Progress · $completed / ${_tasks.length}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
@@ -160,7 +160,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
                                     minHeight: 7,
                                     borderRadius: BorderRadius.circular(8),
                                     color: const Color(0xFF55C99A),
-                                    backgroundColor: const Color(0xFF303544),
+                                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                                   ),
                                 ],
                               ),
@@ -169,7 +169,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
                           const SizedBox(height: 10),
                           for (final task in _tasks)
                             Card(
-                              color: const Color(0xFF151923),
+                              color: Theme.of(context).cardColor,
                               child: CheckboxListTile(
                                 value: task.isCompleted,
                                 onChanged: (value) {
@@ -196,7 +196,7 @@ class _ProjectTasksPageState extends State<ProjectTasksPage> {
                                       : Icons.radio_button_unchecked_rounded,
                                   color: task.isCompleted
                                       ? const Color(0xFF55C99A)
-                                      : const Color(0xFF969BAD),
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
