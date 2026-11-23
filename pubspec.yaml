@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  archive: ^4.7.1
+  crypto: ^3.0.8
   path_provider: ^2.1.5
   webview_flutter: ^4.12.0
 
