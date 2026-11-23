@@ -93,7 +93,27 @@ class WorkspaceStore {
   }
 
   Future<WorkspaceAnalysis> analyzeWorkspace(QxProject project) async {
-    if (!RegExp(r'^[A-Za-z0-9_-]+
+    if (!RegExp(r'^[A-Za-z0-9_-]+$').hasMatch(project.id)) {
+      throw ArgumentError.value(project.id, 'project.id', 'Invalid project id.');
+    }
+    final base = await _directoryProvider();
+    final workspace = Directory('${base.path}/qx_workspaces/${project.id}');
+    final workspaceType =
+        await FileSystemEntity.type(workspace.path, followLinks: false);
+    if (workspaceType == FileSystemEntityType.notFound) {
+      return _buildAnalysis(const <WorkspaceEntry>[]);
+    }
+    if (workspaceType != FileSystemEntityType.directory) {
+      throw FileSystemException(
+        'Workspace path is not a regular directory.',
+        workspace.path,
+      );
+    }
+    final entries = await _listEntriesIn(workspace);
+    return _buildAnalysis(entries);
+  }
+
+  WorkspaceAnalysis _buildAnalysis(List<WorkspaceEntry> entries) {
     final files = entries.where((entry) => !entry.isDirectory).toList();
     final extensions = <String, int>{};
     var totalBytes = 0;
