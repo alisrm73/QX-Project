@@ -91,10 +91,14 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
         type: FileType.custom,
         allowedExtensions: const ['qxbackup'],
         allowMultiple: false,
+        withData: true,
       );
-      if (selected.isEmpty) return;
+      if (selected == null || selected.files.isEmpty) return;
 
-      final bytes = await selected.single.readAsBytes();
+      final bytes = selected.files.single.bytes;
+      if (bytes == null) {
+        throw const FormatException('تعذّر قراءة ملف النسخة المحدد.');
+      }
       final restored = await _backup.restoreAsNewProject(bytes);
       if (!mounted) return;
       await _refresh();
