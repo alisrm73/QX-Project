@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -112,14 +114,18 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
         type: FileType.custom,
         allowedExtensions: const ['qxbackup'],
         allowMultiple: false,
-        withData: true,
       );
       if (selected == null || selected.files.isEmpty) return;
 
-      final bytes = selected.files.single.bytes;
-      if (bytes == null) {
-        throw const FormatException('تعذّر قراءة ملف النسخة المحدد.');
+      final selectedFile = selected.files.single;
+      if (selectedFile.size > ProjectBackupService.maxBackupBytes) {
+        throw const FormatException('ملف النسخة أكبر من الحد المسموح.');
       }
+      final selectedPath = selectedFile.path;
+      if (selectedPath == null) {
+        throw const FormatException('تعذّر الوصول إلى ملف النسخة المحدد.');
+      }
+      final bytes = await File(selectedPath).readAsBytes();
       final restored = await _backup.restoreAsNewProject(bytes);
       if (!mounted) return;
       await _refresh();
