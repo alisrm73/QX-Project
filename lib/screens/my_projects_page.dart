@@ -60,6 +60,27 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
 
   Future<void> _exportProject(QxProject project) async {
     if (_backupBusy) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('تصدير نسخة المشروع'),
+        content: const Text(
+          'سيحتوي الملف على ملفات المشروع وبياناته. ملف النسخة غير مشفّر محلياً من QX؛ لا تضع فيه كلمات مرور أو مفاتيح سرية. بعد حفظه افتح MEGA وارفع الملف إلى حسابك. الحد الأقصى للنسخة 12 MB من الملفات.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('متابعة'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
     setState(() => _backupBusy = true);
     try {
       final bytes = await _backup.createBackup(project);
@@ -73,7 +94,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
         _showMessage('تم إلغاء حفظ النسخة.');
       } else {
         _showMessage(
-          'تم إنشاء نسخة المشروع. افتح MEGA وارفع ملف QX بصيغة qxbackup.',
+          'تم إنشاء النسخة. افتح MEGA وارفع ملف QX بصيغة qxbackup من مجلد التنزيلات.',
         );
       }
     } catch (error) {
@@ -118,7 +139,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
           backgroundColor: const Color(0xFF0B0D13),
           actions: [
             IconButton(
-              tooltip: 'استعادة نسخة من MEGA / Restore backup',
+              tooltip: 'استعادة نسخة من MEGA بعد تنزيلها / Restore downloaded backup',
               onPressed: _backupBusy ? null : _restoreBackup,
               icon: const Icon(Icons.cloud_download_outlined),
             ),
