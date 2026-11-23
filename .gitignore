@@ -1,0 +1,9 @@
+# Flutter / Dart generated files
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Local IDE files
+.idea/
+.vscode/
