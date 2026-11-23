@@ -87,6 +87,16 @@ class ProjectStore {
     return savedProject;
   }
 
+  /// Removes only the project record. The caller owns workspace cleanup.
+  /// Used to roll back a restore that failed before completion.
+  Future<void> deleteProject(String projectId) async {
+    final projects = (await getProjects()).toList();
+    final remaining =
+        projects.where((project) => project.id != projectId).toList();
+    if (remaining.length == projects.length) return;
+    await _writeProjects(remaining);
+  }
+
   Future<void> _writeProjects(List<QxProject> projects) async {
     final file = await _projectsFile();
     await file.writeAsString(
