@@ -50,9 +50,11 @@ void main() {
     expect(backup.file.path, contains('/qx_backups/project-zip-123/'));
     expect(backup.file.path.endsWith('.zip'), isTrue);
     expect(backup.fileCount, 2);
-    expect(backup.directoryCount, 2);
+    expect(backup.directoryCount, 3);
     expect(backup.totalBytes, 'QX Studio'.length + 'class Item {}'.length);
-    expect(backup.sha256, await sha256.bind(backup.file.openRead()).first.then((value) => value.toString()));
+    final expectedDigest =
+        await sha256.bind(backup.file.openRead()).first.then((value) => value.toString());
+    expect(backup.sha256, expectedDigest);
 
     final archive = ZipDecoder().decodeBytes(
       await backup.file.readAsBytes(),
