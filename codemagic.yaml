@@ -1,0 +1,33 @@
+workflows:
+  qx-studio-android-apk:
+    name: QX Studio Android APK
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+
+    environment:
+      flutter: stable
+      java: 17
+
+    scripts:
+      - name: Generate Android platform files
+        script: |
+          set -e
+          flutter create --platforms=android --org com.qxstudio --project-name qx_studio android_shell
+          cp -R android_shell/android ./android
+          rm -rf android_shell
+
+      - name: Resolve Flutter packages
+        script: flutter pub get
+
+      - name: Analyze Dart code
+        script: flutter analyze
+
+      - name: Run Flutter tests
+        script: flutter test
+
+      - name: Build release APK
+        script: flutter build apk --release
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/flutter-apk/*.sha256
