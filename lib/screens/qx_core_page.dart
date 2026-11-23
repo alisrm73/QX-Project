@@ -45,12 +45,13 @@ class _QxCorePageState extends State<QxCorePage> {
       _loadReport() async {
     final projects = await _store.getProjects();
     final results = <({QxProject project, WorkspaceAnalysis analysis})>[];
+    final analysisRunId = DateTime.now().microsecondsSinceEpoch;
     for (final project in projects) {
       final analysis = await _workspaceStore.analyzeWorkspace(project);
       results.add((project: project, analysis: analysis));
       unawaited(
         _telegramManager.notifyAnalysisCompleted(
-          eventId: 'analysis:${project.id}',
+          eventId: 'analysis:$analysisRunId:${project.id}',
         ),
       );
     }
