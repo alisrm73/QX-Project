@@ -64,6 +64,22 @@ void main() {
     expect(await store.readTextFile(project, 'main.dart'), 'void main() { print("QX"); }');
   });
 
+  test('analyzing a missing workspace does not create it', () async {
+    final workspacePath = '${directory.path}/qx_workspaces/project-123';
+
+    final report = await store.analyzeWorkspace(project);
+
+    expect(report.fileCount, 0);
+    expect(report.directoryCount, 0);
+    expect(report.totalBytes, 0);
+    expect(report.extensionCounts, isEmpty);
+    expect(report.hasIndexHtml, isFalse);
+    expect(report.hasStyleCss, isFalse);
+    expect(report.hasScriptJs, isFalse);
+    expect(await Directory(workspacePath).exists(), isFalse);
+    expect(await Directory('${directory.path}/qx_workspaces').exists(), isFalse);
+  });
+
   test('analyzes project files, folders, extensions, and web entry points', () async {
     await store.createDirectory(project, directoryPath: 'assets');
     await store.createTextFile(project, fileName: 'index.html', content: '<html></html>');
