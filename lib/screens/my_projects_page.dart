@@ -1,6 +1,8 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../models/qx_project.dart';
+import '../services/project_backup_service.dart';
 import '../services/project_store.dart';
 import 'project_editor_page.dart';
 
@@ -15,8 +17,11 @@ class MyProjectsPage extends StatefulWidget {
 
 class _MyProjectsPageState extends State<MyProjectsPage> {
   late Future<List<QxProject>> _projectsFuture;
+  bool _backupBusy = false;
 
   ProjectStore get _store => widget.store ?? ProjectStore();
+  ProjectBackupService get _backup =>
+      ProjectBackupService(projectStore: _store);
 
   @override
   void initState() {
@@ -26,6 +31,13 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
 
   void _loadProjects() {
     _projectsFuture = _store.getProjects();
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   Future<void> _refresh() async {
@@ -46,11 +58,67 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
     await _refresh();
   }
 
+  Future<void> _exportProject(QxProject project) async {
+    if (_backupBusy) return;
+    setState(() => _backupBusy = true);
+    try {
+      final bytes = await _backup.createBackup(project);
+      final output = await FilePicker.saveFile(
+        dialogTitle: 'حفظ نسخة المشروع لرفعها إلى MEGA',
+        fileName: 'QX-${project.id}.qxbackup',
+        bytes: bytes,
+      );
+      if (!mounted) return;
+      if (output == null) {
+        _showMessage('تم إلغاء حفظ النسخة.');
+      } else {
+        _showMessage(
+          'تم إنشاء نسخة المشروع. افتح MEGA وارفع ملف QX بصيغة qxbackup.',
+        );
+      }
+    } catch (error) {
+      _showMessage('تعذّر إنشاء النسخة: $error');
+    } finally {
+      if (mounted) setState(() => _backupBusy = false);
+    }
+  }
+
+  Future<void> _restoreBackup() async {
+    if (_backupBusy) return;
+    setState(() => _backupBusy = true);
+    try {
+      final selected = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['qxbackup'],
+        allowMultiple: false,
+      );
+      if (selected.isEmpty) return;
+
+      final bytes = await selected.single.readAsBytes();
+      final restored = await _backup.restoreAsNewProject(bytes);
+      if (!mounted) return;
+      await _refresh();
+      if (!mounted) return;
+      _showMessage('تمت استعادة «${restored.name}» كمشروع جديد دون استبدال مشروع موجود.');
+    } catch (error) {
+      _showMessage('تعذّرت استعادة النسخة: $error');
+    } finally {
+      if (mounted) setState(() => _backupBusy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('مشاريعي / My projects'),
           backgroundColor: const Color(0xFF0B0D13),
+          actions: [
+            IconButton(
+              tooltip: 'استعادة نسخة من MEGA / Restore backup',
+              onPressed: _backupBusy ? null : _restoreBackup,
+              icon: const Icon(Icons.cloud_download_outlined),
+            ),
+          ],
         ),
         backgroundColor: const Color(0xFF0B0D13),
         body: FutureBuilder<List<QxProject>>(
@@ -93,7 +161,7 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                       onTap: () => _openProject(project),
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 8, 16),
                         decoration: BoxDecoration(
                           color: const Color(0xFF151923),
                           borderRadius: BorderRadius.circular(16),
@@ -150,6 +218,21 @@ class _MyProjectsPageState extends State<MyProjectsPage> {
                                   ],
                                 ],
                               ),
+                            ),
+                            PopupMenuButton<String>(
+                              enabled: !_backupBusy,
+                              tooltip: 'إجراءات المشروع',
+                              onSelected: (value) {
+                                if (value == 'backup') {
+                                  _exportProject(project);
+                                }
+                              },
+                              itemBuilder: (context) => const [
+                                PopupMenuItem<String>(
+                                  value: 'backup',
+                                  child: Text('تصدير نسخة لرفعها إلى MEGA'),
+                                ),
+                              ],
                             ),
                           ],
                         ),
