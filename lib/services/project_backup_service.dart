@@ -21,8 +21,8 @@ class ProjectBackupService {
 
   static const formatName = 'qxstudio-project-backup';
   static const schemaVersion = 1;
-  static const maxTotalFileBytes = 32 * 1024 * 1024;
-  static const maxBackupBytes = 48 * 1024 * 1024;
+  static const maxTotalFileBytes = 12 * 1024 * 1024;
+  static const maxBackupBytes = 18 * 1024 * 1024;
   static const maxFiles = 3000;
   static const maxDirectories = 3000;
 
@@ -55,7 +55,7 @@ class ProjectBackupService {
       final data = await File(filePath).readAsBytes();
       totalBytes += data.length;
       if (totalBytes > maxTotalFileBytes) {
-        throw StateError('Project backup exceeds the 32 MB safety limit.');
+        throw StateError('Project backup exceeds the 12 MB safety limit.');
       }
 
       files.add({
@@ -86,7 +86,7 @@ class ProjectBackupService {
       const JsonEncoder.withIndent('  ').convert(payload),
     );
     if (encoded.length > maxBackupBytes) {
-      throw StateError('Generated backup exceeds the 48 MB safety limit.');
+      throw StateError('Generated backup exceeds the 18 MB safety limit.');
     }
     return Uint8List.fromList(encoded);
   }
@@ -163,7 +163,7 @@ class ProjectBackupService {
       }
       totalBytes += data.length;
       if (totalBytes > maxTotalFileBytes) {
-        throw const FormatException('Backup exceeds the 32 MB restore limit.');
+        throw const FormatException('Backup exceeds the 12 MB restore limit.');
       }
       files.add(_RestoredFile(path: path, bytes: data));
     }
